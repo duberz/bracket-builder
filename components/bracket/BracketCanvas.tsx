@@ -4,6 +4,7 @@ import { useRef, forwardRef, useImperativeHandle, useMemo } from "react";
 import type { Tournament, Matchup as MatchupType, Team } from "@/types/bracket";
 import { useBracketStore } from "@/lib/store/bracketStore";
 import MatchupCard from "./Matchup";
+import FanDuelLogo from "@/components/brand/FanDuelLogo";
 
 interface Props {
   tournament: Tournament;
@@ -97,18 +98,13 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
         className="bracket-canvas bg-[var(--brand-bg)] overflow-x-auto overflow-y-hidden"
         style={{ fontFamily: "var(--brand-font, 'Inter', sans-serif)" }}
       >
-        {/* Tournament header */}
-        <div className="flex items-center justify-between px-4 py-3 bg-[var(--brand-surface)] border-b border-[var(--brand-primary)]/20">
-          <div>
-            <div className="font-bold text-[var(--brand-text)] text-sm leading-tight">{tournament.name}</div>
-            <div className="text-[var(--brand-muted)] text-xs">{tournament.season}</div>
+        {/* Branded header */}
+        <div className="flex items-center justify-between px-4 py-3 bg-[var(--brand-secondary)]">
+          <FanDuelLogo variant="light" height={28} />
+          <div className="text-right">
+            <div className="font-bold text-white text-sm leading-tight">{tournament.name}</div>
+            <div className="text-white/60 text-xs">{tournament.season}</div>
           </div>
-          {tournament.champion && (
-            <div className="text-right">
-              <div className="text-[10px] text-[var(--brand-muted)] uppercase tracking-wide">Champion</div>
-              <div className="font-bold text-[var(--brand-primary)]">{tournament.champion.name}</div>
-            </div>
-          )}
         </div>
 
         {/* Main bracket grid */}
@@ -202,6 +198,17 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
               />
             );
           })}
+        </div>
+
+        {/* Gambling disclaimer footer */}
+        <div className="flex items-center justify-between px-4 py-2 bg-[var(--brand-secondary)] border-t border-white/10">
+          <FanDuelLogo variant="light" height={20} />
+          <div className="text-[9px] text-white/70 text-center flex-1 mx-4">
+            Gambling Problem? Call 1-800-GAMBLER. Please Gamble Responsibly.
+          </div>
+          <div className="text-[9px] text-white/50 whitespace-nowrap">
+            FanDuel Research · {new Date().getFullYear()}
+          </div>
         </div>
       </div>
     );

@@ -65,9 +65,6 @@ export default function BracketPageContent() {
       <main className="flex-1 overflow-auto">
         <BracketCanvas ref={bracketRef} tournament={data as Tournament} />
       </main>
-      <footer className="text-center py-2 text-[10px] text-[var(--brand-muted)] border-t border-[var(--brand-primary)]/10">
-        Gambling Problem? Call 1-800-GAMBLER · FanDuel Research · {new Date().getFullYear()}
-      </footer>
     </div>
   );
 }

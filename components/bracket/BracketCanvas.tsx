@@ -39,8 +39,15 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
       return getWinner(matchupId);
     };
 
-    const leftRegionIds = ["east", "south"];
-    const rightRegionIds = ["west", "midwest"];
+    // Derive sides from tournament.regions so this works for any tournament
+    const leftRegionIds = useMemo(
+      () => tournament.regions.filter((r) => r.side === "left").map((r) => r.id),
+      [tournament.regions]
+    );
+    const rightRegionIds = useMemo(
+      () => tournament.regions.filter((r) => r.side === "right").map((r) => r.id),
+      [tournament.regions]
+    );
 
     const leftMatchupsByRound = useMemo(() => {
       const map: Map<number, MatchupType[]> = new Map();
@@ -50,7 +57,7 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
         map.get(m.round)!.push(m);
       }
       return map;
-    }, [matchups]);
+    }, [matchups, leftRegionIds]);
 
     const rightMatchupsByRound = useMemo(() => {
       const map: Map<number, MatchupType[]> = new Map();
@@ -60,7 +67,7 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
         map.get(m.round)!.push(m);
       }
       return map;
-    }, [matchups]);
+    }, [matchups, rightRegionIds]);
 
     const regionalRounds = tournament.rounds.filter((r) => r.roundNumber <= 3);
     const finalRounds = tournament.rounds.filter((r) => r.roundNumber >= 4);

@@ -4,7 +4,16 @@ const TOURNAMENTS = [
   {
     id: "ncaa-basketball-2026",
     name: "2026 NCAA Men's Basketball Tournament",
-    shortName: "March Madness 2026",
+    shortName: "March Madness 2026 — Men's",
+    sport: "ncaa_basketball",
+    season: "2025-26",
+    teamCount: 64,
+    logoUrl: null,
+  },
+  {
+    id: "ncaa-womens-basketball-2026",
+    name: "2026 NCAA Women's Basketball Tournament",
+    shortName: "March Madness 2026 — Women's",
     sport: "ncaa_basketball",
     season: "2025-26",
     teamCount: 64,

@@ -35,3 +35,16 @@ body {
 
 /* No underline on links by default */
 a { text-decoration: none; }
+
+/* ── Print styles ── */
+@media print {
+  @page { size: landscape; margin: 0.5cm; }
+
+  /* Hide header / controls */
+  header, .no-print { display: none !important; }
+
+  /* Let the bracket canvas expand to full page */
+  html, body { height: auto !important; overflow: visible !important; background: white !important; }
+  main { overflow: visible !important; height: auto !important; }
+  .bracket-canvas { overflow: visible !important; width: auto !important; }
+}

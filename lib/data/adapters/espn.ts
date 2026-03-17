@@ -157,6 +157,29 @@ export async function getLiveBracket(): Promise<Tournament> {
     return tournament;
   }
 
+  // ── Logo enrichment pass ──
+  // Build a {region}-{seed} → logoUrl map from ALL ESPN games (including unplayed).
+  // This gives us logos for round-0 teams even before games start.
+  const logoMap = new Map<string, string>();
+  for (const g of games) {
+    if (g.round === 0 && g.region) {
+      if (g.home.logoUrl) logoMap.set(`${g.region}-${g.home.seed}`, g.home.logoUrl);
+      if (g.away.logoUrl) logoMap.set(`${g.region}-${g.away.seed}`, g.away.logoUrl);
+    }
+  }
+  for (const m of matchups) {
+    if (m.round === 0 && m.region) {
+      if (m.teamA?.seed && !m.teamA.name.includes("/")) {
+        const logo = logoMap.get(`${m.region}-${m.teamA.seed}`);
+        if (logo) m.teamA.logoUrl = logo;
+      }
+      if (m.teamB?.seed && !m.teamB.name.includes("/")) {
+        const logo = logoMap.get(`${m.region}-${m.teamB.seed}`);
+        if (logo) m.teamB.logoUrl = logo;
+      }
+    }
+  }
+
   // winnerMap lets us resolve teams in later rounds as we go
   const winnerMap = new Map<string, Team>();
 

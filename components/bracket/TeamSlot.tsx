@@ -26,37 +26,46 @@ export default function TeamSlot({
   const isPicked = team && picks[matchupId] === team.id;
   const isEliminated = officialWinner && team && officialWinner.id !== team.id;
 
-  const handleClick = () => {
-    if (!team || readOnly) return;
-    onClick?.();
-  };
-
   return (
     <div
-      onClick={handleClick}
+      onClick={() => { if (team && !readOnly) onClick?.(); }}
       className={[
         "flex items-center gap-1 px-1 h-8 text-[11px] leading-none select-none",
-        // Bottom line on top slot only — bottom slot has no line (outer container provides bottom)
         position === "top" ? "border-b border-gray-300" : "",
         team && !readOnly ? "cursor-pointer hover:bg-blue-50 transition-colors" : "cursor-default",
         isPicked ? "font-bold" : "",
         isEliminated ? "opacity-30 line-through" : "",
         !team ? "opacity-0 pointer-events-none" : "",
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      ].filter(Boolean).join(" ")}
       title={team ? `${team.name}${team.record ? ` (${team.record})` : ""}` : undefined}
     >
+      {/* Seed */}
       {team?.seed && (
         <span className="text-[10px] w-4 text-right shrink-0 text-gray-400 font-normal">
           {team.seed}
         </span>
       )}
-      <span
-        className={["truncate min-w-0 flex-1", isPicked ? "text-[#1066E5]" : "text-gray-800"].join(" ")}
-      >
+
+      {/* Team logo */}
+      {team?.logoUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={team.logoUrl}
+          alt=""
+          width={16}
+          height={16}
+          className="shrink-0 object-contain"
+          style={{ width: 16, height: 16 }}
+          onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+        />
+      )}
+
+      {/* Name */}
+      <span className={["truncate min-w-0 flex-1", isPicked ? "text-[#1066E5]" : "text-gray-800"].join(" ")}>
         {team?.shortName ?? team?.name ?? "TBD"}
       </span>
+
+      {/* Record */}
       {team?.record && (
         <span className="text-[9px] shrink-0 text-gray-400 hidden sm:block">
           {team.record}

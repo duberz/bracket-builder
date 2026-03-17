@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import type { BracketCanvasHandle } from "@/components/bracket/BracketCanvas";
 
 interface Props {
@@ -36,30 +36,20 @@ export default function ExportMenu({ bracketRef, tournamentName = "bracket" }: P
     }
   };
 
+  const btnClass =
+    "flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded bg-white/10 hover:bg-white/20 text-white transition-colors disabled:opacity-50";
+
   return (
     <div className="flex gap-2">
-      <button
-        onClick={handlePng}
-        disabled={!!loading}
-        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded bg-[var(--brand-surface)] border border-[var(--brand-primary)]/30 text-[var(--brand-text)] hover:bg-[var(--brand-primary)] hover:text-white transition-colors disabled:opacity-50"
-      >
-        {loading === "png" ? (
-          <span className="animate-spin">⏳</span>
-        ) : (
-          <span>🖼</span>
-        )}
+      <button onClick={() => window.print()} className={btnClass}>
+        Print
+      </button>
+      <button onClick={handlePng} disabled={!!loading} className={btnClass}>
+        {loading === "png" ? <span className="animate-spin inline-block">⏳</span> : null}
         PNG
       </button>
-      <button
-        onClick={handlePdf}
-        disabled={!!loading}
-        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded bg-[var(--brand-surface)] border border-[var(--brand-primary)]/30 text-[var(--brand-text)] hover:bg-[var(--brand-primary)] hover:text-white transition-colors disabled:opacity-50"
-      >
-        {loading === "pdf" ? (
-          <span className="animate-spin">⏳</span>
-        ) : (
-          <span>📄</span>
-        )}
+      <button onClick={handlePdf} disabled={!!loading} className={btnClass}>
+        {loading === "pdf" ? <span className="animate-spin inline-block">⏳</span> : null}
         PDF
       </button>
     </div>

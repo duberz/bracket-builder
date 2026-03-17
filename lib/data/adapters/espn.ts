@@ -96,10 +96,7 @@ interface EspnGame {
 
 async function fetchAllGames(cfg: SportConfig, regionIds: string[]): Promise<EspnGame[]> {
   const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
-  // Always include the first 4 dates (First Four + First Round) so team logos
-  // are available before games are played. Remaining dates only if in the past.
-  const alwaysFetch = new Set(cfg.dates.slice(0, 4));
-  const dates = cfg.dates.filter((d) => alwaysFetch.has(d) || d <= today);
+  const dates = cfg.dates.filter((d) => d <= today);
   const url = `${ESPN_BASE}/${cfg.sport}/scoreboard`;
   const allGames: EspnGame[] = [];
 

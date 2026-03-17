@@ -10,6 +10,7 @@ interface Props {
   officialWinner?: Team | null;
   onClick?: () => void;
   readOnly?: boolean;
+  position: "top" | "bottom";
 }
 
 export default function TeamSlot({
@@ -19,11 +20,11 @@ export default function TeamSlot({
   officialWinner,
   onClick,
   readOnly,
+  position,
 }: Props) {
   const picks = useBracketStore((s) => s.picks);
   const isPicked = team && picks[matchupId] === team.id;
-  const isEliminated =
-    officialWinner && team && officialWinner.id !== team.id;
+  const isEliminated = officialWinner && team && officialWinner.id !== team.id;
 
   const handleClick = () => {
     if (!team || readOnly) return;
@@ -34,11 +35,11 @@ export default function TeamSlot({
     <div
       onClick={handleClick}
       className={[
-        "flex items-center gap-1.5 px-2 h-8 text-xs leading-none rounded",
-        "transition-all duration-150 select-none",
-        team && !readOnly ? "cursor-pointer hover:bg-[var(--brand-primary)] hover:text-white group" : "cursor-default",
-        isPicked ? "bg-[var(--brand-primary)] text-white font-semibold" : "bg-transparent text-[var(--brand-text)]",
-        isWinner && !isPicked ? "font-semibold" : "",
+        "flex items-center gap-1 px-1 h-8 text-[11px] leading-none select-none",
+        // Bottom line on top slot only — bottom slot has no line (outer container provides bottom)
+        position === "top" ? "border-b border-gray-300" : "",
+        team && !readOnly ? "cursor-pointer hover:bg-blue-50 transition-colors" : "cursor-default",
+        isPicked ? "font-bold" : "",
         isEliminated ? "opacity-30 line-through" : "",
         !team ? "opacity-0 pointer-events-none" : "",
       ]
@@ -47,23 +48,17 @@ export default function TeamSlot({
       title={team ? `${team.name}${team.record ? ` (${team.record})` : ""}` : undefined}
     >
       {team?.seed && (
-        <span
-          className={[
-            "text-[10px] font-bold w-4 text-right shrink-0",
-            isPicked ? "text-white/70" : "text-[var(--brand-muted)]",
-          ].join(" ")}
-        >
+        <span className="text-[10px] w-4 text-right shrink-0 text-gray-400 font-normal">
           {team.seed}
         </span>
       )}
-      <span className="truncate min-w-0 flex-1">{team?.shortName ?? team?.name ?? "TBD"}</span>
+      <span
+        className={["truncate min-w-0 flex-1", isPicked ? "text-[#1066E5]" : "text-gray-800"].join(" ")}
+      >
+        {team?.shortName ?? team?.name ?? "TBD"}
+      </span>
       {team?.record && (
-        <span
-          className={[
-            "text-[9px] shrink-0 hidden sm:block",
-            isPicked ? "text-white/60" : "text-[var(--brand-muted)]",
-          ].join(" ")}
-        >
+        <span className="text-[9px] shrink-0 text-gray-400 hidden sm:block">
           {team.record}
         </span>
       )}

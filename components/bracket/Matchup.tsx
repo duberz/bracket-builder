@@ -6,7 +6,7 @@ import TeamSlot from "./TeamSlot";
 
 interface Props {
   matchup: MatchupType;
-  resolvedTeamA?: Team | null; // winner from upstream matchup
+  resolvedTeamA?: Team | null;
   resolvedTeamB?: Team | null;
   readOnly?: boolean;
 }
@@ -19,17 +19,14 @@ export default function Matchup({
 }: Props) {
   const pick = useBracketStore((s) => s.pick);
   const picks = useBracketStore((s) => s.picks);
-  const getWinner = useBracketStore((s) => s.getWinner);
 
   const teamA = resolvedTeamA ?? matchup.teamA;
   const teamB = resolvedTeamB ?? matchup.teamB;
   const officialWinner = matchup.winner;
-  const userPick = picks[matchup.id];
 
   const handlePick = (team: Team) => {
     if (readOnly) return;
-    if (userPick === team.id) {
-      // Toggle off
+    if (picks[matchup.id] === team.id) {
       useBracketStore.getState().clearPick(matchup.id);
     } else {
       pick(matchup.id, team.id);
@@ -37,10 +34,8 @@ export default function Matchup({
   };
 
   return (
-    <div
-      className="flex flex-col border border-[var(--brand-primary)]/20 rounded overflow-hidden bg-[var(--brand-surface)] shadow-sm w-full"
-      style={{ minWidth: 110 }}
-    >
+    // No border box — just two line-style rows, outer border-b for the bottom line
+    <div className="flex flex-col w-full border-b border-gray-300" style={{ minWidth: 110 }}>
       <TeamSlot
         team={teamA}
         matchupId={matchup.id}
@@ -48,8 +43,8 @@ export default function Matchup({
         officialWinner={officialWinner}
         onClick={() => teamA && handlePick(teamA)}
         readOnly={readOnly}
+        position="top"
       />
-      <div className="h-px bg-[var(--brand-primary)]/15" />
       <TeamSlot
         team={teamB}
         matchupId={matchup.id}
@@ -57,6 +52,7 @@ export default function Matchup({
         officialWinner={officialWinner}
         onClick={() => teamB && handlePick(teamB)}
         readOnly={readOnly}
+        position="bottom"
       />
     </div>
   );

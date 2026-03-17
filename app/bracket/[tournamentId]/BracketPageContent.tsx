@@ -28,7 +28,7 @@ export default function BracketPageContent() {
   const { data, error, isLoading } = useSWR<Tournament>(
     `/api/bracket/${tournamentId}`,
     fetcher,
-    { refreshInterval: 0 }
+    { refreshInterval: 60_000, revalidateOnFocus: true }
   );
 
   useEffect(() => {

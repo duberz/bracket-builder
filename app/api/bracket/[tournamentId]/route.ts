@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getLiveBracket } from "@/lib/data/adapters/espn";
 import ncaa2026 from "@/lib/data/static/ncaa-2026.json";
 
-// Registry of available static tournaments
-const STATIC_DATA: Record<string, unknown> = {
-  "ncaa-basketball-2026": ncaa2026,
-};
-
+// Revalidate via Next.js ISR every 60 s
 export const revalidate = 60;
 
 export async function GET(
@@ -13,15 +10,20 @@ export async function GET(
   context: { params: Promise<{ tournamentId: string }> }
 ) {
   const { tournamentId } = await context.params;
-  const data = STATIC_DATA[tournamentId];
 
-  if (!data) {
+  if (tournamentId !== "ncaa-basketball-2026") {
     return NextResponse.json({ error: "Tournament not found" }, { status: 404 });
   }
 
-  return NextResponse.json(data, {
-    headers: {
-      "Cache-Control": "s-maxage=60, stale-while-revalidate=300",
-    },
-  });
+  try {
+    const data = await getLiveBracket();
+    return NextResponse.json(data, {
+      headers: { "Cache-Control": "s-maxage=60, stale-while-revalidate=300" },
+    });
+  } catch {
+    // Fall back to static data if ESPN is unreachable
+    return NextResponse.json(ncaa2026, {
+      headers: { "Cache-Control": "s-maxage=60, stale-while-revalidate=300" },
+    });
+  }
 }

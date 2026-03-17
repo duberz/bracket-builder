@@ -17,11 +17,9 @@ export default function Matchup({
   resolvedTeamB,
   readOnly,
 }: Props) {
-  const { pick, picks, getWinner } = useBracketStore((s) => ({
-    pick: s.pick,
-    picks: s.picks,
-    getWinner: s.getWinner,
-  }));
+  const pick = useBracketStore((s) => s.pick);
+  const picks = useBracketStore((s) => s.picks);
+  const getWinner = useBracketStore((s) => s.getWinner);
 
   const teamA = resolvedTeamA ?? matchup.teamA;
   const teamB = resolvedTeamB ?? matchup.teamB;

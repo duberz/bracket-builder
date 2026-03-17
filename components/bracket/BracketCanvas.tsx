@@ -48,10 +48,8 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
       getElement: () => containerRef.current,
     }));
 
-    const { picks, getWinner } = useBracketStore((s) => ({
-      picks: s.picks,
-      getWinner: s.getWinner,
-    }));
+    const picks = useBracketStore((s) => s.picks);
+    const getWinner = useBracketStore((s) => s.getWinner);
 
     const matchups: MatchupType[] = (tournament as any).matchups ?? [];
     const totalRounds = tournament.rounds.length;

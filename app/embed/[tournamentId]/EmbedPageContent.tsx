@@ -27,14 +27,10 @@ export default function EmbedPageContent() {
   const primaryColor = searchParams.get("primaryColor");
   const bgColor = searchParams.get("bgColor");
 
-  const { setTournament, loadPicks } = useBracketStore((s) => ({
-    setTournament: s.setTournament,
-    loadPicks: s.loadPicks,
-  }));
-  const { applyToDOM, setBrand } = useThemeStore((s) => ({
-    applyToDOM: s.applyToDOM,
-    setBrand: s.setBrand,
-  }));
+  const setTournament = useBracketStore((s) => s.setTournament);
+  const loadPicks = useBracketStore((s) => s.loadPicks);
+  const applyToDOM = useThemeStore((s) => s.applyToDOM);
+  const setBrand = useThemeStore((s) => s.setBrand);
 
   useEffect(() => {
     if (primaryColor) setBrand({ primaryColor });

@@ -13,10 +13,8 @@ interface Props {
 }
 
 export default function Header({ bracketRef, showExport, embed }: Props) {
-  const { tournament, reset } = useBracketStore((s) => ({
-    tournament: s.tournament,
-    reset: s.reset,
-  }));
+  const tournament = useBracketStore((s) => s.tournament);
+  const reset = useBracketStore((s) => s.reset);
 
   const handleShare = () => {
     const encoded = useBracketStore.getState().encodePicks();

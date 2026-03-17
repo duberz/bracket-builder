@@ -21,10 +21,8 @@ export default function BracketPageContent() {
   const tournamentId = params.tournamentId as string;
   const bracketRef = useRef<BracketCanvasHandle>(null);
 
-  const { setTournament, loadPicks } = useBracketStore((s) => ({
-    setTournament: s.setTournament,
-    loadPicks: s.loadPicks,
-  }));
+  const setTournament = useBracketStore((s) => s.setTournament);
+  const loadPicks = useBracketStore((s) => s.loadPicks);
   const applyToDOM = useThemeStore((s) => s.applyToDOM);
 
   const { data, error, isLoading } = useSWR<Tournament>(

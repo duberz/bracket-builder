@@ -18,6 +18,8 @@ export interface BracketCanvasHandle {
 const ROUND_WIDTH = 148;
 const ROUND_GAP = 24;
 const MATCHUP_HEIGHT = 72; // 2 slots + divider
+const SLOT_H = MATCHUP_HEIGHT + 8;
+const TOTAL_H = 16 * SLOT_H; // constant across all rounds
 const CONNECTOR_COLOR = "#94a3b8"; // slate-400 — visible but not harsh
 
 export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
@@ -89,6 +91,26 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
 
         {/* Main bracket grid */}
         <div className="flex items-start gap-0 min-w-max px-2 py-4">
+          {/* LEFT REGION LABELS */}
+          <div className="flex flex-col shrink-0 mr-2" style={{ width: 48, height: TOTAL_H }}>
+            {tournament.regions.filter(r => r.side === "left").map(region => (
+              <div key={region.id} className="flex-1 flex items-center justify-center">
+                <span
+                  className="font-black uppercase"
+                  style={{
+                    writingMode: "vertical-rl",
+                    transform: "rotate(180deg)",
+                    color: "var(--brand-primary)",
+                    fontSize: 22,
+                    letterSpacing: "0.15em",
+                  }}
+                >
+                  {region.name}
+                </span>
+              </div>
+            ))}
+          </div>
+
           {/* LEFT SIDE — rounds 0→3 (East + South) */}
           {regionalRounds.map((round) => {
             const rMatchups = (leftMatchupsByRound.get(round.roundNumber) ?? [])
@@ -107,12 +129,12 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
           })}
 
           {/* CENTER — Final Four + Championship */}
-          <div className="flex flex-col items-center justify-center gap-4 px-3 self-center">
+          <div className="flex flex-col items-center justify-center gap-4 px-4 self-center rounded-xl bg-white/60 border border-[var(--brand-primary)]/20 py-6 mx-2">
             {/* FanDuel branding */}
             <div className="flex flex-col items-center mb-2">
               <FanDuelLogo variant="vertical-blue" height={72} />
             </div>
-            <div className="text-[10px] font-bold text-[var(--brand-muted)] uppercase tracking-widest text-center">
+            <div className="text-[11px] font-bold text-[var(--brand-muted)] uppercase tracking-widest text-center">
               Final Four
             </div>
             {finalRounds.slice(0, -1).map((round) => {
@@ -177,6 +199,25 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
               />
             );
           })}
+
+          {/* RIGHT REGION LABELS */}
+          <div className="flex flex-col shrink-0 ml-2" style={{ width: 48, height: TOTAL_H }}>
+            {tournament.regions.filter(r => r.side === "right").map(region => (
+              <div key={region.id} className="flex-1 flex items-center justify-center">
+                <span
+                  className="font-black uppercase"
+                  style={{
+                    writingMode: "vertical-rl",
+                    color: "var(--brand-primary)",
+                    fontSize: 22,
+                    letterSpacing: "0.15em",
+                  }}
+                >
+                  {region.name}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Gambling disclaimer footer */}
@@ -225,8 +266,7 @@ function RoundColumn({ round, matchups, resolveTeam, readOnly, side }: RoundColu
   const firstOffset = spacing / 2 - MATCHUP_HEIGHT / 2;
   const totalH = 16 * slotH; // constant for all rounds (2 regions × 8 matchups each)
 
-  // Region labels only appear on round 0 columns
-  const regionGroups = round.roundNumber === 0 ? getRegionGroups(matchups) : [];
+  const regionGroups: { name: string; startIdx: number }[] = [];
 
   // Connector lines: pair up consecutive matchups (0+1→0, 2+3→1, …)
   // Skip E8 (round 3) — its output connects to the Final Four section

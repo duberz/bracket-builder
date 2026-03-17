@@ -109,9 +109,8 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
           {/* CENTER — Final Four + Championship */}
           <div className="flex flex-col items-center justify-center gap-4 px-3 self-center">
             {/* FanDuel branding */}
-            <div className="flex flex-col items-center gap-1 mb-1">
-              <FanDuelLogo variant="dark" height={22} />
-              <div className="text-[8px] text-[var(--brand-muted)] uppercase tracking-widest">Research</div>
+            <div className="flex flex-col items-center mb-2">
+              <FanDuelLogo variant="vertical-blue" height={72} />
             </div>
             <div className="text-[10px] font-bold text-[var(--brand-muted)] uppercase tracking-widest text-center">
               Final Four

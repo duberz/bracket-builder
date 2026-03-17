@@ -1,13 +1,16 @@
 interface Props {
-  /** light = white logo (for dark header); dark = blue logo (for light bg) */
-  variant?: "light" | "dark";
+  /** light = white horizontal; dark = blue horizontal; vertical-blue / vertical-white = stacked logo */
+  variant?: "light" | "dark" | "vertical-blue" | "vertical-white";
   className?: string;
   style?: React.CSSProperties;
   height?: number;
 }
 
 export default function FanDuelLogo({ variant = "light", className = "", style, height = 32 }: Props) {
-  const src = variant === "light" ? "/fanduel-logo-white.png" : "/fanduel-logo-blue.png";
+  const src =
+    variant === "vertical-blue" ? "/fanduel-vertical-blue.png" :
+    variant === "vertical-white" ? "/fanduel-vertical-white.png" :
+    variant === "light" ? "/fanduel-logo-white.png" : "/fanduel-logo-blue.png";
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img

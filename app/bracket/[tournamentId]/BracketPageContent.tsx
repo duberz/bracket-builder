@@ -35,8 +35,6 @@ export default function BracketPageContent() {
 
   useEffect(() => {
     applyToDOM();
-    // Rehydrate Zustand persist store from localStorage after mount
-    useBracketStore.persist.rehydrate();
   }, []);
 
   useEffect(() => {

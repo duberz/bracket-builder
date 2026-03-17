@@ -40,7 +40,6 @@ export default function EmbedPageContent() {
     if (primaryColor) setBrand({ primaryColor });
     if (bgColor) setBrand({ backgroundColor: bgColor });
     applyToDOM();
-    useBracketStore.persist.rehydrate();
   }, []);
 
   const { data, isLoading } = useSWR<Tournament>(

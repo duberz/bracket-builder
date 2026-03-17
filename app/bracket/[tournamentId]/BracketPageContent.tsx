@@ -9,7 +9,11 @@ import { useThemeStore } from "@/lib/store/themeStore";
 import BracketCanvas, { type BracketCanvasHandle } from "@/components/bracket/BracketCanvas";
 import Header from "@/components/layout/Header";
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json());
+const fetcher = (url: string) =>
+  fetch(url).then((r) => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return r.json();
+  });
 
 export default function BracketPageContent() {
   const params = useParams();
@@ -31,6 +35,8 @@ export default function BracketPageContent() {
 
   useEffect(() => {
     applyToDOM();
+    // Rehydrate Zustand persist store from localStorage after mount
+    useBracketStore.persist.rehydrate();
   }, []);
 
   useEffect(() => {

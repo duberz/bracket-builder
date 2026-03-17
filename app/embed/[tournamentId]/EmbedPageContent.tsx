@@ -9,7 +9,11 @@ import { useThemeStore } from "@/lib/store/themeStore";
 import BracketCanvas, { type BracketCanvasHandle } from "@/components/bracket/BracketCanvas";
 import Header from "@/components/layout/Header";
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json());
+const fetcher = (url: string) =>
+  fetch(url).then((r) => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return r.json();
+  });
 
 export default function EmbedPageContent() {
   const params = useParams();
@@ -36,6 +40,7 @@ export default function EmbedPageContent() {
     if (primaryColor) setBrand({ primaryColor });
     if (bgColor) setBrand({ backgroundColor: bgColor });
     applyToDOM();
+    useBracketStore.persist.rehydrate();
   }, []);
 
   const { data, isLoading } = useSWR<Tournament>(

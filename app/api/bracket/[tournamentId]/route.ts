@@ -6,7 +6,6 @@ const STATIC_DATA: Record<string, unknown> = {
   "ncaa-basketball-2026": ncaa2026,
 };
 
-export const runtime = "edge";
 export const revalidate = 60;
 
 export async function GET(

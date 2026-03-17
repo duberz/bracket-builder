@@ -88,6 +88,7 @@ export const useBracketStore = create<BracketStore>()(
     {
       name: "bracket-picks",
       partialize: (state) => ({ picks: state.picks }),
+      skipHydration: true,
     }
   )
 );

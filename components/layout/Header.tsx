@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useRef } from "react";
 import { useBracketStore } from "@/lib/store/bracketStore";
 import ExportMenu from "@/components/controls/ExportMenu";
+import FanDuelLogo from "@/components/brand/FanDuelLogo";
 import type { BracketCanvasHandle } from "@/components/bracket/BracketCanvas";
 
 interface Props {
@@ -29,9 +29,7 @@ export default function Header({ bracketRef, showExport, embed }: Props) {
   if (embed) {
     return (
       <div className="flex items-center justify-between px-3 py-2 bg-[var(--brand-secondary)] text-white text-xs">
-        <span className="font-bold tracking-wide">
-          {tournament?.shortName ?? "Bracket Builder"}
-        </span>
+        <FanDuelLogo variant="light" style={{ height: 28 }} />
         {showExport && bracketRef && (
           <ExportMenu bracketRef={bracketRef} tournamentName={tournament?.shortName} />
         )}
@@ -42,21 +40,9 @@ export default function Header({ bracketRef, showExport, embed }: Props) {
   return (
     <header className="flex items-center justify-between px-4 py-3 bg-[var(--brand-secondary)] text-white shadow-md">
       <Link href="/" className="flex items-center gap-3 no-underline">
-        {/* FanDuel Research shield */}
-        <div className="flex items-center gap-2">
-          <div
-            className="w-9 h-10 flex items-center justify-center rounded font-black text-lg"
-            style={{ background: "var(--brand-primary)" }}
-          >
-            F
-          </div>
-          <div className="leading-tight">
-            <div className="font-bold text-sm tracking-wide">FANDUEL</div>
-            <div className="text-[10px] text-white/60 tracking-widest">RESEARCH</div>
-          </div>
-        </div>
+        <FanDuelLogo variant="light" />
         <div className="w-px h-8 bg-white/20" />
-        <div className="text-sm font-semibold text-white/90">Bracket Builder</div>
+        <div className="text-sm font-semibold text-white/90 tracking-wide">Bracket Builder</div>
       </Link>
 
       <div className="flex items-center gap-2">

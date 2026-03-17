@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useThemeStore } from "@/lib/store/themeStore";
+import FanDuelLogo from "@/components/brand/FanDuelLogo";
 
 const SPORT_ICONS: Record<string, string> = {
   ncaa_basketball: "🏀",
@@ -37,16 +38,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-[var(--brand-bg)]" style={{ fontFamily: "var(--brand-font, 'Inter', sans-serif)" }}>
       <header className="bg-[var(--brand-secondary)] text-white px-6 py-4 flex items-center gap-3 shadow-lg">
-        <div
-          className="w-10 h-11 flex items-center justify-center rounded font-black text-xl"
-          style={{ background: "var(--brand-primary)" }}
-        >
-          F
-        </div>
-        <div>
-          <div className="font-bold text-base tracking-wide">FANDUEL RESEARCH</div>
-          <div className="text-white/50 text-[10px] tracking-widest">BRACKET BUILDER</div>
-        </div>
+        <FanDuelLogo variant="light" />
       </header>
 
       <main className="max-w-3xl mx-auto px-4 py-12">

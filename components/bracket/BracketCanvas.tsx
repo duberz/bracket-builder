@@ -234,7 +234,7 @@ function RoundColumn({ round, matchups, resolveTeam, readOnly, side, totalRounds
   const slotH = MATCHUP_HEIGHT + 8;
   const spacing = slotH * spacingFactor;
   const firstOffset = spacing / 2 - MATCHUP_HEIGHT / 2;
-  const totalH = 8 * slotH * spacingFactor; // 8 first-round matchups per half-bracket
+  const totalH = 16 * slotH; // 16 first-round matchups per side (2 regions × 8), constant for all rounds
 
   return (
     <div

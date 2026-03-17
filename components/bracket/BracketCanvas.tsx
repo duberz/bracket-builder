@@ -16,30 +16,9 @@ export interface BracketCanvasHandle {
 }
 
 const ROUND_WIDTH = 148;
-const ROUND_GAP = 20;
+const ROUND_GAP = 24;
 const MATCHUP_HEIGHT = 72; // 2 slots + divider
-const CONNECTOR_COLOR = "#1066E520";
-
-// Layout for a half-bracket (one side)
-function getRoundMatchups(matchups: MatchupType[], side: "left" | "right") {
-  const regionIds = side === "left"
-    ? ["east", "south"]
-    : ["west", "midwest"];
-
-  // Group by round, filter by region
-  const byRound: Map<number, MatchupType[]> = new Map();
-  for (const m of matchups) {
-    if (!regionIds.includes(m.region as string) && m.round < 4) continue;
-    if (!byRound.has(m.round)) byRound.set(m.round, []);
-    byRound.get(m.round)!.push(m);
-  }
-  return byRound;
-}
-
-// Get all matchups for a given round across all regions
-function getRoundAll(matchups: MatchupType[], round: number) {
-  return matchups.filter((m) => m.round === round).sort((a, b) => a.position - b.position);
-}
+const CONNECTOR_COLOR = "#94a3b8"; // slate-400 — visible but not harsh
 
 export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
   ({ tournament, readOnly }, ref) => {
@@ -55,13 +34,11 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
     const matchups: MatchupType[] = (tournament as any).matchups ?? [];
     const totalRounds = tournament.rounds.length;
 
-    // Resolve projected team for a matchup slot based on picks
     const resolveTeam = (matchupId: string | null): Team | null => {
       if (!matchupId) return null;
       return getWinner(matchupId);
     };
 
-    // Build the bracket layout per round
     const leftRegionIds = ["east", "south"];
     const rightRegionIds = ["west", "midwest"];
 
@@ -84,10 +61,6 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
       }
       return map;
     }, [matchups]);
-
-    // Round names
-    const roundNames = tournament.rounds.map((r) => r.shortName ?? r.name);
-    const roundDates = tournament.rounds.map((r) => r.startDate ?? "");
 
     const regionalRounds = tournament.rounds.filter((r) => r.roundNumber <= 3);
     const finalRounds = tournament.rounds.filter((r) => r.roundNumber >= 4);
@@ -113,11 +86,6 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
           {regionalRounds.map((round) => {
             const rMatchups = (leftMatchupsByRound.get(round.roundNumber) ?? [])
               .sort((a, b) => a.position - b.position);
-            const matchupCount = rMatchups.length;
-            const totalH = matchupCount > 0
-              ? (Math.max(...rMatchups.map(m => m.position)) + 1) * (MATCHUP_HEIGHT + 8) * Math.pow(2, round.roundNumber)
-              : 600;
-
             return (
               <RoundColumn
                 key={round.id}
@@ -217,6 +185,17 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
 
 BracketCanvas.displayName = "BracketCanvas";
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function getRegionGroups(matchups: MatchupType[]) {
+  const seen = new Map<string, number>();
+  for (let i = 0; i < matchups.length; i++) {
+    const r = matchups[i].region ?? "unknown";
+    if (!seen.has(r)) seen.set(r, i);
+  }
+  return Array.from(seen.entries()).map(([name, startIdx]) => ({ name, startIdx }));
+}
+
 // ── Round Column ──────────────────────────────────────────────────────────────
 
 interface RoundColumnProps {
@@ -228,13 +207,26 @@ interface RoundColumnProps {
   totalRounds: number;
 }
 
-function RoundColumn({ round, matchups, resolveTeam, readOnly, side, totalRounds }: RoundColumnProps) {
-  // Spacing multiplier doubles each round
+function RoundColumn({ round, matchups, resolveTeam, readOnly, side }: RoundColumnProps) {
   const spacingFactor = Math.pow(2, round.roundNumber);
   const slotH = MATCHUP_HEIGHT + 8;
   const spacing = slotH * spacingFactor;
   const firstOffset = spacing / 2 - MATCHUP_HEIGHT / 2;
-  const totalH = 16 * slotH; // 16 first-round matchups per side (2 regions × 8), constant for all rounds
+  const totalH = 16 * slotH; // constant for all rounds (2 regions × 8 matchups each)
+
+  // Region labels only appear on round 0 columns
+  const regionGroups = round.roundNumber === 0 ? getRegionGroups(matchups) : [];
+
+  // Connector lines: pair up consecutive matchups (0+1→0, 2+3→1, …)
+  // Skip E8 (round 3) — its output connects to the Final Four section
+  const showConnectors = round.roundNumber < 3 && matchups.length >= 2;
+  const connectorPairs = showConnectors
+    ? Array.from({ length: Math.floor(matchups.length / 2) }, (_, k) => {
+        const yA = firstOffset + (2 * k) * spacing + MATCHUP_HEIGHT / 2;
+        const yB = firstOffset + (2 * k + 1) * spacing + MATCHUP_HEIGHT / 2;
+        return { yA, yB, midY: (yA + yB) / 2 };
+      })
+    : [];
 
   return (
     <div
@@ -253,6 +245,29 @@ function RoundColumn({ round, matchups, resolveTeam, readOnly, side, totalRounds
 
       {/* Matchup slots */}
       <div className="relative" style={{ height: totalH }}>
+
+        {/* Region labels (round 0 only) */}
+        {regionGroups.map(({ name, startIdx }) => {
+          const labelY = firstOffset + startIdx * spacing - 14;
+          return (
+            <div
+              key={name}
+              className="absolute text-[9px] font-bold uppercase tracking-widest text-center pointer-events-none"
+              style={{
+                top: Math.max(2, labelY),
+                left: 0,
+                right: 0,
+                color: "var(--brand-primary)",
+                opacity: 0.75,
+                zIndex: 1,
+              }}
+            >
+              {name}
+            </div>
+          );
+        })}
+
+        {/* Matchup cards */}
         {matchups.map((m, idx) => {
           const y = firstOffset + idx * spacing;
           return (
@@ -270,6 +285,43 @@ function RoundColumn({ round, matchups, resolveTeam, readOnly, side, totalRounds
             </div>
           );
         })}
+
+        {/* Bracket connector SVG — extends into the gap toward the next round */}
+        {connectorPairs.length > 0 && (
+          <svg
+            aria-hidden="true"
+            className="absolute pointer-events-none"
+            style={
+              side === "left"
+                ? { top: 0, left: ROUND_WIDTH, width: ROUND_GAP, height: totalH }
+                : { top: 0, left: -ROUND_GAP, width: ROUND_GAP, height: totalH }
+            }
+          >
+            {connectorPairs.map(({ yA, yB, midY }, k) =>
+              side === "left" ? (
+                <g key={k}>
+                  {/* From matchup right edge → midpoint */}
+                  <line x1={0} y1={yA} x2={ROUND_GAP / 2} y2={yA} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={0} y1={yB} x2={ROUND_GAP / 2} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  {/* Vertical bracket */}
+                  <line x1={ROUND_GAP / 2} y1={yA} x2={ROUND_GAP / 2} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  {/* From midpoint → next column left edge */}
+                  <line x1={ROUND_GAP / 2} y1={midY} x2={ROUND_GAP} y2={midY} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                </g>
+              ) : (
+                <g key={k}>
+                  {/* From matchup left edge (at x=ROUND_GAP) → midpoint */}
+                  <line x1={ROUND_GAP} y1={yA} x2={ROUND_GAP / 2} y2={yA} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={ROUND_GAP} y1={yB} x2={ROUND_GAP / 2} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  {/* Vertical bracket */}
+                  <line x1={ROUND_GAP / 2} y1={yA} x2={ROUND_GAP / 2} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  {/* From midpoint → inner column right edge (x=0) */}
+                  <line x1={ROUND_GAP / 2} y1={midY} x2={0} y2={midY} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                </g>
+              )
+            )}
+          </svg>
+        )}
       </div>
     </div>
   );

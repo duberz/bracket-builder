@@ -47,14 +47,30 @@ const WOMENS: SportConfig = {
 
 // ── Headline parsers ──────────────────────────────────────────────────────────
 
+// Women's 2026: ESPN uses "Regional N in City" — map to our region IDs by
+// matching the 1-seed teams in each regional pod.
+const WOMENS_REGIONAL_MAP: Record<string, string> = {
+  "regional 1": "east",      // Fort Worth pod  — UConn region
+  "regional 2": "west",      // Sacramento pod  — UCLA region
+  "regional 3": "south",     // Fort Worth pod  — Texas region
+  "regional 4": "midwest",   // Sacramento pod  — South Carolina region
+};
+
 function parseRegion(headline: string, regionIds: string[]): string | null {
   // Try men's standard region names first
   const stdMatch = headline.match(/(East|South|West|Midwest)\s+Region/i);
   if (stdMatch) return stdMatch[1].toLowerCase();
 
-  // Women's uses host-city names — try matching against known region IDs
+  // Women's 2026: "Regional N in City" format
+  const wMatch = headline.match(/regional\s+(\d)/i);
+  if (wMatch) {
+    const key = `regional ${wMatch[1]}`;
+    return WOMENS_REGIONAL_MAP[key] ?? null;
+  }
+
+  // Legacy: try matching against known region IDs
   for (const id of regionIds) {
-    const city = id.replace(/\d+$/, ""); // strip trailing numbers
+    const city = id.replace(/\d+$/, "");
     if (headline.toLowerCase().includes(city.toLowerCase())) return id;
   }
   return null;
@@ -110,14 +126,15 @@ async function fetchAllGames(cfg: SportConfig, regionIds: string[]): Promise<Esp
         const data = await res.json();
 
         for (const event of data.events ?? []) {
-          if (event.tournamentId !== ESPN_TOURNAMENT_ID) continue;
-
-          const headline: string = event.notes?.[0]?.headline ?? "";
-          const round = parseRound(headline);
-          const region = parseRegion(headline, regionIds);
-
           const comp = event.competitions?.[0];
           if (!comp || comp.competitors?.length !== 2) continue;
+          // tournamentId and notes moved to competition object in ESPN API update
+          if ((comp.tournamentId ?? event.tournamentId) !== ESPN_TOURNAMENT_ID) continue;
+
+          const headline: string =
+            comp.notes?.[0]?.headline ?? event.notes?.[0]?.headline ?? "";
+          const round = parseRound(headline);
+          const region = parseRegion(headline, regionIds);
 
           const [c1, c2] = comp.competitors as any[];
           const state: string = event.status?.type?.state ?? "pre";

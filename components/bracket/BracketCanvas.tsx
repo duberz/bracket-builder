@@ -222,13 +222,21 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
         </div>
 
         {/* Gambling disclaimer footer */}
-        <div className="flex items-center justify-between px-4 py-2 bg-[var(--brand-secondary)] border-t border-white/10">
-          <FanDuelLogo variant="light" height={20} />
-          <div className="text-[9px] text-white/70 text-center flex-1 mx-4">
-            Gambling Problem? Call 1-800-GAMBLER. Please Gamble Responsibly.
+        <div className="px-4 py-2 bg-[var(--brand-secondary)] border-t border-white/10">
+          <div className="flex items-center justify-between mb-1">
+            <FanDuelLogo variant="light" height={20} />
+            <div className="text-[9px] text-white/50 whitespace-nowrap">
+              FanDuel Research · {new Date().getFullYear()}
+            </div>
           </div>
-          <div className="text-[9px] text-white/50 whitespace-nowrap">
-            FanDuel Research · {new Date().getFullYear()}
+          <div className="text-[8px] text-white/60 text-center leading-relaxed">
+            If you or someone you know has a gambling problem, help is available. Call (877-8-HOPENY) or text HOPENY (467369)
+          </div>
+          <div className="text-[8px] text-white/50 text-center leading-relaxed">
+            This site has been authorized by the New York State Gaming Commission for use by registered users physically present in New York.
+          </div>
+          <div className="text-[8px] text-white/50 text-center leading-relaxed">
+            Persons under 21 are not permitted to engage in sports wagering.
           </div>
         </div>
       </div>

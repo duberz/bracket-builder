@@ -55,6 +55,18 @@ export const useBracketStore = create<BracketStore>()(
       getWinner: (matchupId) => {
         const { tournament, picks } = get();
         if (!tournament) return null;
+
+        // Handle group advancement slots (e.g. "group-a-1st", "group-a-2nd")
+        if (matchupId.startsWith("group-") && tournament.groups) {
+          const pickedTeamId = picks[matchupId];
+          if (!pickedTeamId) return null;
+          for (const g of tournament.groups) {
+            const t = g.teams.find((t) => t.id === pickedTeamId);
+            if (t) return t;
+          }
+          return null;
+        }
+
         const matchup = tournament.matchups?.find((m) => m.id === matchupId);
         if (!matchup) return null;
         // Official result takes precedence

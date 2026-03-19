@@ -82,6 +82,14 @@ export interface Region {
   teams: Team[];
 }
 
+// ─── World Cup Group ──────────────────────────────────────────────────────────
+
+export interface WorldCupGroup {
+  id: string;   // "group-a"
+  name: string; // "Group A"
+  teams: Team[];
+}
+
 // ─── Tournament ───────────────────────────────────────────────────────────────
 
 export type SportType =
@@ -116,6 +124,7 @@ export interface Tournament extends TournamentMeta {
   regions: Region[];
   rounds: Round[];
   matchups?: Matchup[];   // flat matchup list (populated from static JSON / API)
+  groups?: WorldCupGroup[]; // group stage (group_then_knockout format only)
   champion: Team | null;
   brand?: Partial<BrandConfig>;
 }

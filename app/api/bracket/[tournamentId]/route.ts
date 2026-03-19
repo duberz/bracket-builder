@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getLiveBracket, getLiveWomensBracket } from "@/lib/data/adapters/espn";
 import ncaa2026 from "@/lib/data/static/ncaa-2026.json";
 import ncaaWomens2026 from "@/lib/data/static/ncaa-womens-2026.json";
+import fifa2026 from "@/lib/data/static/fifa-2026.json";
 
 export const revalidate = 60;
 
@@ -26,6 +27,10 @@ export async function GET(
     } catch {
       return NextResponse.json(ncaaWomens2026, { headers });
     }
+  }
+
+  if (tournamentId === "fifa-world-cup-2026") {
+    return NextResponse.json(fifa2026, { headers });
   }
 
   return NextResponse.json({ error: "Tournament not found" }, { status: 404 });

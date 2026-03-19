@@ -1,0 +1,200 @@
+{
+  "id": "fifa-world-cup-2026",
+  "name": "2026 FIFA World Cup",
+  "shortName": "World Cup 2026",
+  "sport": "soccer",
+  "season": "2026",
+  "format": "group_then_knockout",
+  "teamCount": 48,
+  "hasRegions": false,
+  "champion": null,
+  "groups": [
+    {
+      "id": "group-a",
+      "name": "Group A",
+      "teams": [
+        { "id": "t-usa", "name": "United States", "shortName": "USA", "abbreviation": "USA", "logoUrl": "https://flagcdn.com/w40/us.png", "color": "#002868" },
+        { "id": "t-pan", "name": "Panama", "shortName": "Panama", "abbreviation": "PAN", "logoUrl": "https://flagcdn.com/w40/pa.png", "color": "#da121a" },
+        { "id": "t-mar", "name": "Morocco", "shortName": "Morocco", "abbreviation": "MAR", "logoUrl": "https://flagcdn.com/w40/ma.png", "color": "#c1272d" },
+        { "id": "t-aus", "name": "Australia", "shortName": "Australia", "abbreviation": "AUS", "logoUrl": "https://flagcdn.com/w40/au.png", "color": "#00008b" }
+      ]
+    },
+    {
+      "id": "group-b",
+      "name": "Group B",
+      "teams": [
+        { "id": "t-mex", "name": "Mexico", "shortName": "Mexico", "abbreviation": "MEX", "logoUrl": "https://flagcdn.com/w40/mx.png", "color": "#006847" },
+        { "id": "t-cri", "name": "Costa Rica", "shortName": "Costa Rica", "abbreviation": "CRC", "logoUrl": "https://flagcdn.com/w40/cr.png", "color": "#002b7f" },
+        { "id": "t-jpn", "name": "Japan", "shortName": "Japan", "abbreviation": "JPN", "logoUrl": "https://flagcdn.com/w40/jp.png", "color": "#bc002d" },
+        { "id": "t-srb", "name": "Serbia", "shortName": "Serbia", "abbreviation": "SRB", "logoUrl": "https://flagcdn.com/w40/rs.png", "color": "#c6363c" }
+      ]
+    },
+    {
+      "id": "group-c",
+      "name": "Group C",
+      "teams": [
+        { "id": "t-can", "name": "Canada", "shortName": "Canada", "abbreviation": "CAN", "logoUrl": "https://flagcdn.com/w40/ca.png", "color": "#ff0000" },
+        { "id": "t-jam", "name": "Jamaica", "shortName": "Jamaica", "abbreviation": "JAM", "logoUrl": "https://flagcdn.com/w40/jm.png", "color": "#000000" },
+        { "id": "t-kor", "name": "South Korea", "shortName": "S. Korea", "abbreviation": "KOR", "logoUrl": "https://flagcdn.com/w40/kr.png", "color": "#003478" },
+        { "id": "t-pol", "name": "Poland", "shortName": "Poland", "abbreviation": "POL", "logoUrl": "https://flagcdn.com/w40/pl.png", "color": "#dc143c" }
+      ]
+    },
+    {
+      "id": "group-d",
+      "name": "Group D",
+      "teams": [
+        { "id": "t-arg", "name": "Argentina", "shortName": "Argentina", "abbreviation": "ARG", "logoUrl": "https://flagcdn.com/w40/ar.png", "color": "#74acdf" },
+        { "id": "t-ecu", "name": "Ecuador", "shortName": "Ecuador", "abbreviation": "ECU", "logoUrl": "https://flagcdn.com/w40/ec.png", "color": "#ffd100" },
+        { "id": "t-ksa", "name": "Saudi Arabia", "shortName": "Saudi Arabia", "abbreviation": "KSA", "logoUrl": "https://flagcdn.com/w40/sa.png", "color": "#006c35" },
+        { "id": "t-cmr", "name": "Cameroon", "shortName": "Cameroon", "abbreviation": "CMR", "logoUrl": "https://flagcdn.com/w40/cm.png", "color": "#007a5e" }
+      ]
+    },
+    {
+      "id": "group-e",
+      "name": "Group E",
+      "teams": [
+        { "id": "t-bra", "name": "Brazil", "shortName": "Brazil", "abbreviation": "BRA", "logoUrl": "https://flagcdn.com/w40/br.png", "color": "#009c3b" },
+        { "id": "t-col", "name": "Colombia", "shortName": "Colombia", "abbreviation": "COL", "logoUrl": "https://flagcdn.com/w40/co.png", "color": "#fcd116" },
+        { "id": "t-irn", "name": "Iran", "shortName": "Iran", "abbreviation": "IRN", "logoUrl": "https://flagcdn.com/w40/ir.png", "color": "#239f40" },
+        { "id": "t-sen", "name": "Senegal", "shortName": "Senegal", "abbreviation": "SEN", "logoUrl": "https://flagcdn.com/w40/sn.png", "color": "#00853f" }
+      ]
+    },
+    {
+      "id": "group-f",
+      "name": "Group F",
+      "teams": [
+        { "id": "t-esp", "name": "Spain", "shortName": "Spain", "abbreviation": "ESP", "logoUrl": "https://flagcdn.com/w40/es.png", "color": "#aa151b" },
+        { "id": "t-chl", "name": "Chile", "shortName": "Chile", "abbreviation": "CHI", "logoUrl": "https://flagcdn.com/w40/cl.png", "color": "#d52b1e" },
+        { "id": "t-nga", "name": "Nigeria", "shortName": "Nigeria", "abbreviation": "NGA", "logoUrl": "https://flagcdn.com/w40/ng.png", "color": "#008751" },
+        { "id": "t-den", "name": "Denmark", "shortName": "Denmark", "abbreviation": "DEN", "logoUrl": "https://flagcdn.com/w40/dk.png", "color": "#c60c30" }
+      ]
+    },
+    {
+      "id": "group-g",
+      "name": "Group G",
+      "teams": [
+        { "id": "t-fra", "name": "France", "shortName": "France", "abbreviation": "FRA", "logoUrl": "https://flagcdn.com/w40/fr.png", "color": "#0055a4" },
+        { "id": "t-uru", "name": "Uruguay", "shortName": "Uruguay", "abbreviation": "URU", "logoUrl": "https://flagcdn.com/w40/uy.png", "color": "#5aaaa8" },
+        { "id": "t-egy", "name": "Egypt", "shortName": "Egypt", "abbreviation": "EGY", "logoUrl": "https://flagcdn.com/w40/eg.png", "color": "#ce1126" },
+        { "id": "t-sui", "name": "Switzerland", "shortName": "Switzerland", "abbreviation": "SUI", "logoUrl": "https://flagcdn.com/w40/ch.png", "color": "#ff0000" }
+      ]
+    },
+    {
+      "id": "group-h",
+      "name": "Group H",
+      "teams": [
+        { "id": "t-eng", "name": "England", "shortName": "England", "abbreviation": "ENG", "logoUrl": "https://flagcdn.com/w40/gb-eng.png", "color": "#cf081f" },
+        { "id": "t-per", "name": "Peru", "shortName": "Peru", "abbreviation": "PER", "logoUrl": "https://flagcdn.com/w40/pe.png", "color": "#d91023" },
+        { "id": "t-qat", "name": "Qatar", "shortName": "Qatar", "abbreviation": "QAT", "logoUrl": "https://flagcdn.com/w40/qa.png", "color": "#8d1b3d" },
+        { "id": "t-ned", "name": "Netherlands", "shortName": "Netherlands", "abbreviation": "NED", "logoUrl": "https://flagcdn.com/w40/nl.png", "color": "#ff4f00" }
+      ]
+    },
+    {
+      "id": "group-i",
+      "name": "Group I",
+      "teams": [
+        { "id": "t-ger", "name": "Germany", "shortName": "Germany", "abbreviation": "GER", "logoUrl": "https://flagcdn.com/w40/de.png", "color": "#000000" },
+        { "id": "t-ven", "name": "Venezuela", "shortName": "Venezuela", "abbreviation": "VEN", "logoUrl": "https://flagcdn.com/w40/ve.png", "color": "#cf142b" },
+        { "id": "t-civ", "name": "Ivory Coast", "shortName": "Ivory Coast", "abbreviation": "CIV", "logoUrl": "https://flagcdn.com/w40/ci.png", "color": "#f77f00" },
+        { "id": "t-cro", "name": "Croatia", "shortName": "Croatia", "abbreviation": "CRO", "logoUrl": "https://flagcdn.com/w40/hr.png", "color": "#ff0000" }
+      ]
+    },
+    {
+      "id": "group-j",
+      "name": "Group J",
+      "teams": [
+        { "id": "t-por", "name": "Portugal", "shortName": "Portugal", "abbreviation": "POR", "logoUrl": "https://flagcdn.com/w40/pt.png", "color": "#006600" },
+        { "id": "t-irq", "name": "Iraq", "shortName": "Iraq", "abbreviation": "IRQ", "logoUrl": "https://flagcdn.com/w40/iq.png", "color": "#007a3d" },
+        { "id": "t-mli", "name": "Mali", "shortName": "Mali", "abbreviation": "MLI", "logoUrl": "https://flagcdn.com/w40/ml.png", "color": "#009a00" },
+        { "id": "t-bel", "name": "Belgium", "shortName": "Belgium", "abbreviation": "BEL", "logoUrl": "https://flagcdn.com/w40/be.png", "color": "#000000" }
+      ]
+    },
+    {
+      "id": "group-k",
+      "name": "Group K",
+      "teams": [
+        { "id": "t-ita", "name": "Italy", "shortName": "Italy", "abbreviation": "ITA", "logoUrl": "https://flagcdn.com/w40/it.png", "color": "#009246" },
+        { "id": "t-jor", "name": "Jordan", "shortName": "Jordan", "abbreviation": "JOR", "logoUrl": "https://flagcdn.com/w40/jo.png", "color": "#007a3d" },
+        { "id": "t-cod", "name": "DR Congo", "shortName": "DR Congo", "abbreviation": "COD", "logoUrl": "https://flagcdn.com/w40/cd.png", "color": "#007fff" },
+        { "id": "t-tur", "name": "Türkiye", "shortName": "Türkiye", "abbreviation": "TUR", "logoUrl": "https://flagcdn.com/w40/tr.png", "color": "#e30a17" }
+      ]
+    },
+    {
+      "id": "group-l",
+      "name": "Group L",
+      "teams": [
+        { "id": "t-aut", "name": "Austria", "shortName": "Austria", "abbreviation": "AUT", "logoUrl": "https://flagcdn.com/w40/at.png", "color": "#ed2939" },
+        { "id": "t-nzl", "name": "New Zealand", "shortName": "New Zealand", "abbreviation": "NZL", "logoUrl": "https://flagcdn.com/w40/nz.png", "color": "#000000" },
+        { "id": "t-gha", "name": "Ghana", "shortName": "Ghana", "abbreviation": "GHA", "logoUrl": "https://flagcdn.com/w40/gh.png", "color": "#006b3f" },
+        { "id": "t-ukr", "name": "Ukraine", "shortName": "Ukraine", "abbreviation": "UKR", "logoUrl": "https://flagcdn.com/w40/ua.png", "color": "#005bbb" }
+      ]
+    }
+  ],
+  "regions": [
+    { "id": "bracket-left",  "name": "Left",  "side": "left",  "position": 0, "teams": [] },
+    { "id": "bracket-right", "name": "Right", "side": "right", "position": 1, "teams": [] }
+  ],
+  "rounds": [
+    { "id": "r-r32",   "roundNumber": 0, "name": "Round of 32",   "shortName": "R32" },
+    { "id": "r-r16",   "roundNumber": 1, "name": "Round of 16",   "shortName": "R16" },
+    { "id": "r-qf",    "roundNumber": 2, "name": "Quarterfinals", "shortName": "QF"  },
+    { "id": "r-sf",    "roundNumber": 3, "name": "Semifinals",    "shortName": "SF"  },
+    { "id": "r-final", "roundNumber": 4, "name": "Final",         "shortName": "Final" }
+  ],
+  "matchups": [
+    { "id": "r32-m01", "round": 0, "position": 0,  "region": "bracket-left",  "teamA": null, "teamB": null, "winner": null, "status": "scheduled", "sourceMatchupIds": ["group-a-1st", "group-b-2nd"] },
+    { "id": "r32-m02", "round": 0, "position": 1,  "region": "bracket-left",  "teamA": null, "teamB": null, "winner": null, "status": "scheduled", "sourceMatchupIds": ["group-c-1st", "group-d-2nd"] },
+    { "id": "r32-m03", "round": 0, "position": 2,  "region": "bracket-left",  "teamA": null, "teamB": null, "winner": null, "status": "scheduled", "sourceMatchupIds": ["group-b-1st", "group-a-2nd"] },
+    { "id": "r32-m04", "round": 0, "position": 3,  "region": "bracket-left",  "teamA": null, "teamB": null, "winner": null, "status": "scheduled", "sourceMatchupIds": ["group-d-1st", "group-c-2nd"] },
+    { "id": "r32-m05", "round": 0, "position": 4,  "region": "bracket-left",  "teamA": null, "teamB": null, "winner": null, "status": "scheduled", "sourceMatchupIds": ["group-e-1st", "group-f-2nd"] },
+    { "id": "r32-m06", "round": 0, "position": 5,  "region": "bracket-left",  "teamA": null, "teamB": null, "winner": null, "status": "scheduled", "sourceMatchupIds": ["group-g-1st", "group-h-2nd"] },
+    { "id": "r32-m07", "round": 0, "position": 6,  "region": "bracket-left",  "teamA": null, "teamB": null, "winner": null, "status": "scheduled", "sourceMatchupIds": ["group-f-1st", "group-e-2nd"] },
+    { "id": "r32-m08", "round": 0, "position": 7,  "region": "bracket-left",  "teamA": null, "teamB": null, "winner": null, "status": "scheduled", "sourceMatchupIds": ["group-h-1st", "group-g-2nd"] },
+    { "id": "r32-m09", "round": 0, "position": 8,  "region": "bracket-right", "teamA": null, "teamB": null, "winner": null, "status": "scheduled", "sourceMatchupIds": ["group-i-1st", "group-j-2nd"] },
+    { "id": "r32-m10", "round": 0, "position": 9,  "region": "bracket-right", "teamA": null, "teamB": null, "winner": null, "status": "scheduled", "sourceMatchupIds": ["group-k-1st", "group-l-2nd"] },
+    { "id": "r32-m11", "round": 0, "position": 10, "region": "bracket-right", "teamA": null, "teamB": null, "winner": null, "status": "scheduled", "sourceMatchupIds": ["group-j-1st", "group-i-2nd"] },
+    { "id": "r32-m12", "round": 0, "position": 11, "region": "bracket-right", "teamA": null, "teamB": null, "winner": null, "status": "scheduled", "sourceMatchupIds": ["group-l-1st", "group-k-2nd"] },
+    {
+      "id": "r32-m13", "round": 0, "position": 12, "region": "bracket-right",
+      "teamA": { "id": "b3rd-1", "name": "Best 3rd (A/B/C)", "shortName": "3rd A/B/C", "abbreviation": "3RD", "color": "#6b7280" },
+      "teamB": { "id": "b3rd-2", "name": "Best 3rd (D/E/F)", "shortName": "3rd D/E/F", "abbreviation": "3RD", "color": "#6b7280" },
+      "winner": null, "status": "scheduled", "sourceMatchupIds": [null, null]
+    },
+    {
+      "id": "r32-m14", "round": 0, "position": 13, "region": "bracket-right",
+      "teamA": { "id": "b3rd-3", "name": "Best 3rd (G/H/I)", "shortName": "3rd G/H/I", "abbreviation": "3RD", "color": "#6b7280" },
+      "teamB": { "id": "b3rd-4", "name": "Best 3rd (J/K/L)", "shortName": "3rd J/K/L", "abbreviation": "3RD", "color": "#6b7280" },
+      "winner": null, "status": "scheduled", "sourceMatchupIds": [null, null]
+    },
+    {
+      "id": "r32-m15", "round": 0, "position": 14, "region": "bracket-right",
+      "teamA": { "id": "b3rd-5", "name": "Best 3rd (A/B/C/D)", "shortName": "3rd A-D", "abbreviation": "3RD", "color": "#6b7280" },
+      "teamB": { "id": "b3rd-6", "name": "Best 3rd (E/F/G/H)", "shortName": "3rd E-H", "abbreviation": "3RD", "color": "#6b7280" },
+      "winner": null, "status": "scheduled", "sourceMatchupIds": [null, null]
+    },
+    {
+      "id": "r32-m16", "round": 0, "position": 15, "region": "bracket-right",
+      "teamA": { "id": "b3rd-7", "name": "Best 3rd (I/J/K/L)", "shortName": "3rd I-L", "abbreviation": "3RD", "color": "#6b7280" },
+      "teamB": { "id": "b3rd-8", "name": "Best 3rd (Various)", "shortName": "3rd Best", "abbreviation": "3RD", "color": "#6b7280" },
+      "winner": null, "status": "scheduled", "sourceMatchupIds": [null, null]
+    },
+
+    { "id": "r16-m01", "round": 1, "position": 0, "region": "bracket-left",  "teamA": null, "teamB": null, "winner": null, "status": "scheduled", "sourceMatchupIds": ["r32-m01", "r32-m02"] },
+    { "id": "r16-m02", "round": 1, "position": 1, "region": "bracket-left",  "teamA": null, "teamB": null, "winner": null, "status": "scheduled", "sourceMatchupIds": ["r32-m03", "r32-m04"] },
+    { "id": "r16-m03", "round": 1, "position": 2, "region": "bracket-left",  "teamA": null, "teamB": null, "winner": null, "status": "scheduled", "sourceMatchupIds": ["r32-m05", "r32-m06"] },
+    { "id": "r16-m04", "round": 1, "position": 3, "region": "bracket-left",  "teamA": null, "teamB": null, "winner": null, "status": "scheduled", "sourceMatchupIds": ["r32-m07", "r32-m08"] },
+    { "id": "r16-m05", "round": 1, "position": 4, "region": "bracket-right", "teamA": null, "teamB": null, "winner": null, "status": "scheduled", "sourceMatchupIds": ["r32-m09", "r32-m10"] },
+    { "id": "r16-m06", "round": 1, "position": 5, "region": "bracket-right", "teamA": null, "teamB": null, "winner": null, "status": "scheduled", "sourceMatchupIds": ["r32-m11", "r32-m12"] },
+    { "id": "r16-m07", "round": 1, "position": 6, "region": "bracket-right", "teamA": null, "teamB": null, "winner": null, "status": "scheduled", "sourceMatchupIds": ["r32-m13", "r32-m14"] },
+    { "id": "r16-m08", "round": 1, "position": 7, "region": "bracket-right", "teamA": null, "teamB": null, "winner": null, "status": "scheduled", "sourceMatchupIds": ["r32-m15", "r32-m16"] },
+
+    { "id": "qf-m01", "round": 2, "position": 0, "region": "bracket-left",  "teamA": null, "teamB": null, "winner": null, "status": "scheduled", "sourceMatchupIds": ["r16-m01", "r16-m02"] },
+    { "id": "qf-m02", "round": 2, "position": 1, "region": "bracket-left",  "teamA": null, "teamB": null, "winner": null, "status": "scheduled", "sourceMatchupIds": ["r16-m03", "r16-m04"] },
+    { "id": "qf-m03", "round": 2, "position": 2, "region": "bracket-right", "teamA": null, "teamB": null, "winner": null, "status": "scheduled", "sourceMatchupIds": ["r16-m05", "r16-m06"] },
+    { "id": "qf-m04", "round": 2, "position": 3, "region": "bracket-right", "teamA": null, "teamB": null, "winner": null, "status": "scheduled", "sourceMatchupIds": ["r16-m07", "r16-m08"] },
+
+    { "id": "sf-m01",    "round": 3, "position": 0, "teamA": null, "teamB": null, "winner": null, "status": "scheduled", "sourceMatchupIds": ["qf-m01", "qf-m02"] },
+    { "id": "sf-m02",    "round": 3, "position": 1, "teamA": null, "teamB": null, "winner": null, "status": "scheduled", "sourceMatchupIds": ["qf-m03", "qf-m04"] },
+    { "id": "final-m01", "round": 4, "position": 0, "teamA": null, "teamB": null, "winner": null, "status": "scheduled", "sourceMatchupIds": ["sf-m01", "sf-m02"] }
+  ]
+}

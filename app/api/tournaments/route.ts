@@ -20,6 +20,15 @@ const TOURNAMENTS = [
     logoUrl: null,
   },
   {
+    id: "fifa-world-cup-2026",
+    name: "2026 FIFA World Cup",
+    shortName: "FIFA World Cup 2026",
+    sport: "soccer",
+    season: "2026",
+    teamCount: 48,
+    logoUrl: null,
+  },
+  {
     id: "nfl-playoffs-2026",
     name: "2026 NFL Playoffs",
     shortName: "NFL Playoffs 2026",

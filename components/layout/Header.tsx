@@ -10,9 +10,10 @@ interface Props {
   bracketRef?: React.RefObject<BracketCanvasHandle | null>;
   showExport?: boolean;
   embed?: boolean;
+  onRefresh?: () => void;
 }
 
-export default function Header({ bracketRef, showExport, embed }: Props) {
+export default function Header({ bracketRef, showExport, embed, onRefresh }: Props) {
   const tournament = useBracketStore((s) => s.tournament);
   const reset = useBracketStore((s) => s.reset);
 
@@ -59,6 +60,14 @@ export default function Header({ bracketRef, showExport, embed }: Props) {
               Reset
             </button>
           </>
+        )}
+        {onRefresh && (
+          <button
+            onClick={onRefresh}
+            className="px-3 py-1.5 text-xs font-medium rounded bg-white/10 hover:bg-white/20 transition-colors"
+          >
+            Update Teams
+          </button>
         )}
         {showExport && bracketRef && (
           <ExportMenu bracketRef={bracketRef} tournamentName={tournament?.shortName} />

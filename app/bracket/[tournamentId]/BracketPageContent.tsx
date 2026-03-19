@@ -26,7 +26,7 @@ export default function BracketPageContent() {
   const loadPicks = useBracketStore((s) => s.loadPicks);
   const applyToDOM = useThemeStore((s) => s.applyToDOM);
 
-  const { data, error, isLoading } = useSWR<Tournament>(
+  const { data, error, isLoading, mutate } = useSWR<Tournament>(
     `/api/bracket/${tournamentId}`,
     fetcher,
     { refreshInterval: 60_000, revalidateOnFocus: true }
@@ -64,7 +64,7 @@ export default function BracketPageContent() {
 
   return (
     <div className="flex flex-col h-screen print:h-auto bg-[var(--brand-bg)]">
-      <Header bracketRef={bracketRef} showExport />
+      <Header bracketRef={bracketRef} showExport onRefresh={() => mutate()} />
       <main className="flex-1 overflow-auto print:overflow-visible">
         {isWorldCup ? (
           <WorldCupBracket ref={bracketRef as React.Ref<WorldCupBracketHandle>} tournament={data as Tournament} />

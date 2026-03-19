@@ -54,6 +54,7 @@ export default function TeamSlot({
           alt=""
           width={16}
           height={16}
+          data-print-hide="true"
           className="shrink-0 object-contain"
           style={{ width: 16, height: 16 }}
           onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}

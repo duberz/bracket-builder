@@ -75,9 +75,10 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
     const finalRounds = tournament.rounds.filter((r) => r.roundNumber >= 4);
 
     return (
+      <div className="overflow-x-auto overflow-y-hidden">
       <div
         ref={containerRef}
-        className="bracket-canvas bg-[var(--brand-bg)] overflow-x-auto overflow-y-hidden"
+        className="bracket-canvas bg-[var(--brand-bg)] inline-flex flex-col"
         style={{ fontFamily: "var(--brand-font, 'Inter', sans-serif)" }}
       >
         {/* Branded header */}
@@ -230,6 +231,7 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
             FanDuel Research · {new Date().getFullYear()}
           </div>
         </div>
+      </div>
       </div>
     );
   }

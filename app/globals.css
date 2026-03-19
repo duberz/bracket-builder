@@ -38,10 +38,8 @@ a { text-decoration: none; }
 @media print {
   @page { size: landscape; margin: 0; }
 
-  /* Hide header / controls */
   header, .no-print { display: none !important; }
 
-  /* Full-page bracket */
   html, body {
     height: auto !important;
     overflow: visible !important;
@@ -50,20 +48,7 @@ a { text-decoration: none; }
     padding: 0;
   }
 
-  main {
-    overflow: visible !important;
-    height: auto !important;
-    padding: 0 !important;
-  }
-
-  /* Scale the bracket to fit the page width */
   .bracket-scroll-container {
     overflow: visible !important;
-  }
-
-  .bracket-canvas, .wc-bracket {
-    width: 100% !important;
-    transform-origin: top left;
-    /* Scale to fit page — browsers will auto-scale for print */
   }
 }

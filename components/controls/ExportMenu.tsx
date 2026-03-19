@@ -39,9 +39,27 @@ export default function ExportMenu({ bracketRef, tournamentName = "bracket" }: P
   const btnClass =
     "flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded bg-white/10 hover:bg-white/20 text-white transition-colors disabled:opacity-50";
 
+  const handlePrint = () => {
+    const el = bracketRef.current?.getElement();
+    if (!el) { window.print(); return; }
+
+    // Scale bracket to fit a landscape page (~980px printable CSS px at 96dpi)
+    const pageWidth = 980;
+    const scale = Math.min(1, pageWidth / el.scrollWidth);
+    const prev = el.style.zoom;
+    el.style.zoom = String(scale);
+
+    const cleanup = () => {
+      el.style.zoom = prev;
+      window.removeEventListener("afterprint", cleanup);
+    };
+    window.addEventListener("afterprint", cleanup);
+    window.print();
+  };
+
   return (
     <div className="flex gap-2">
-      <button onClick={() => window.print()} className={btnClass}>
+      <button onClick={handlePrint} className={btnClass}>
         Print
       </button>
       <button onClick={handlePng} disabled={!!loading} className={btnClass}>

@@ -63,9 +63,9 @@ export default function BracketPageContent() {
   const isWorldCup = data.format === "group_then_knockout";
 
   return (
-    <div className="flex flex-col h-screen bg-[var(--brand-bg)]">
+    <div className="flex flex-col h-screen print:h-auto bg-[var(--brand-bg)]">
       <Header bracketRef={bracketRef} showExport />
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 overflow-auto print:overflow-visible">
         {isWorldCup ? (
           <WorldCupBracket ref={bracketRef as React.Ref<WorldCupBracketHandle>} tournament={data as Tournament} />
         ) : (

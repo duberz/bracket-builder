@@ -30,7 +30,7 @@ export default function TeamSlot({
     <div
       onClick={() => { if (team && !readOnly) onClick?.(); }}
       className={[
-        "flex items-center gap-1 px-1 h-8 text-[11px] leading-none select-none",
+        "flex items-center gap-1 px-1 h-8 text-[13px] leading-none select-none",
         position === "top" ? "border-b border-gray-300" : "",
         team && !readOnly ? "cursor-pointer hover:bg-blue-50 transition-colors" : "cursor-default",
         isPicked ? "font-bold" : "",
@@ -41,7 +41,7 @@ export default function TeamSlot({
     >
       {/* Seed */}
       {team?.seed && (
-        <span className="text-[10px] w-4 text-right shrink-0 text-gray-400 font-normal">
+        <span className="text-[11px] w-4 text-right shrink-0 text-gray-400 font-normal">
           {team.seed}
         </span>
       )}
@@ -68,7 +68,7 @@ export default function TeamSlot({
 
       {/* Record */}
       {team?.record && (
-        <span className="text-[9px] shrink-0 text-gray-400 hidden sm:block">
+        <span className="text-[10px] shrink-0 text-gray-400 hidden sm:block">
           {team.record}
         </span>
       )}

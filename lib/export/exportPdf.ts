@@ -8,13 +8,14 @@ export async function exportPdf(
 
   const hidden = hideLogos(element);
   try {
-    // offsetWidth/offsetHeight of the inline-flex element = content size, no viewport padding
-    const width = element.offsetWidth;
-    const height = element.offsetHeight;
+    const width = element.scrollWidth;
+    const height = element.scrollHeight;
 
     const dataUrl = await toPng(element, {
       pixelRatio: 2,
       backgroundColor: "#ffffff",
+      width,
+      height,
     });
 
     const landscape = width > height;

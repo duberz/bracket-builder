@@ -21,30 +21,49 @@ body {
   margin: 0;
 }
 
-/* Horizontal scroll container for bracket */
-.bracket-canvas {
-  width: 100%;
+/* The outer scroll wrapper — not the captured element */
+.bracket-scroll-container {
   overflow-x: auto;
+  overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
 }
-
-/* Smooth scrollbar */
-.bracket-canvas::-webkit-scrollbar { height: 6px; }
-.bracket-canvas::-webkit-scrollbar-track { background: var(--brand-bg); }
-.bracket-canvas::-webkit-scrollbar-thumb { background: var(--brand-primary); border-radius: 3px; }
+.bracket-scroll-container::-webkit-scrollbar { height: 6px; }
+.bracket-scroll-container::-webkit-scrollbar-track { background: var(--brand-bg); }
+.bracket-scroll-container::-webkit-scrollbar-thumb { background: var(--brand-primary); border-radius: 3px; }
 
 /* No underline on links by default */
 a { text-decoration: none; }
 
 /* ── Print styles ── */
 @media print {
-  @page { size: landscape; margin: 0.5cm; }
+  @page { size: landscape; margin: 0; }
 
   /* Hide header / controls */
   header, .no-print { display: none !important; }
 
-  /* Let the bracket canvas expand to full page */
-  html, body { height: auto !important; overflow: visible !important; background: white !important; }
-  main { overflow: visible !important; height: auto !important; }
-  .bracket-canvas { overflow: visible !important; width: auto !important; }
+  /* Full-page bracket */
+  html, body {
+    height: auto !important;
+    overflow: visible !important;
+    background: white !important;
+    margin: 0;
+    padding: 0;
+  }
+
+  main {
+    overflow: visible !important;
+    height: auto !important;
+    padding: 0 !important;
+  }
+
+  /* Scale the bracket to fit the page width */
+  .bracket-scroll-container {
+    overflow: visible !important;
+  }
+
+  .bracket-canvas, .wc-bracket {
+    width: 100% !important;
+    transform-origin: top left;
+    /* Scale to fit page — browsers will auto-scale for print */
+  }
 }

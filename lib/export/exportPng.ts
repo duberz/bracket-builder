@@ -7,9 +7,13 @@ export async function exportPng(
 ): Promise<void> {
   const hidden = hideLogos(element);
   try {
+    const width = element.scrollWidth;
+    const height = element.scrollHeight;
     const dataUrl = await toPng(element, {
       pixelRatio: scale,
       backgroundColor: "#ffffff",
+      width,
+      height,
     });
     const link = document.createElement("a");
     link.download = filename;

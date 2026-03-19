@@ -106,11 +106,11 @@ export const WorldCupBracket = forwardRef<WorldCupBracketHandle, Props>(
     };
 
     return (
-      <div className="overflow-x-auto overflow-y-hidden">
+      <div className="bracket-scroll-container">
       <div
         ref={containerRef}
-        className="wc-bracket bg-[var(--brand-bg)] inline-flex flex-col"
-        style={{ fontFamily: "var(--brand-font, 'Inter', sans-serif)" }}
+        className="wc-bracket bg-[var(--brand-bg)] flex flex-col"
+        style={{ fontFamily: "var(--brand-font, 'Inter', sans-serif)", width: "fit-content" }}
       >
         {/* Branded header */}
         <div className="flex items-center justify-between px-4 py-3 bg-[var(--brand-secondary)]">

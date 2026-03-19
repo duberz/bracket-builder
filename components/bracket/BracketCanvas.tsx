@@ -15,9 +15,9 @@ export interface BracketCanvasHandle {
   getElement: () => HTMLDivElement | null;
 }
 
-const ROUND_WIDTH = 148;
+const ROUND_WIDTH = 168;
 const ROUND_GAP = 24;
-const MATCHUP_HEIGHT = 72; // 2 slots + divider
+const MATCHUP_HEIGHT = 80; // 2 slots (h-10=40px each) + divider
 const SLOT_H = MATCHUP_HEIGHT + 8;
 const TOTAL_H = 16 * SLOT_H; // constant across all rounds
 const CONNECTOR_COLOR = "#94a3b8"; // slate-400 — visible but not harsh
@@ -135,7 +135,7 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
             <div className="flex flex-col items-center mb-2">
               <FanDuelLogo variant="vertical-blue" height={72} />
             </div>
-            <div className="text-[11px] font-bold text-[var(--brand-muted)] uppercase tracking-widest text-center">
+            <div className="text-[13px] font-bold text-[var(--brand-muted)] uppercase tracking-widest text-center">
               Final Four
             </div>
             {finalRounds.slice(0, -1).map((round) => {
@@ -162,7 +162,7 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
               const champMatchups = matchups.filter(m => m.round === champRound.roundNumber);
               return (
                 <div className="flex flex-col items-center gap-1">
-                  <div className="text-[10px] font-bold text-[var(--brand-muted)] uppercase tracking-widest">Championship</div>
+                  <div className="text-[12px] font-bold text-[var(--brand-muted)] uppercase tracking-widest">Championship</div>
                   {champMatchups.map((m) => (
                     <MatchupCard
                       key={m.id}
@@ -173,7 +173,7 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
                     />
                   ))}
                   <div className="mt-2 border-2 border-[var(--brand-primary)] rounded-lg px-4 py-2 text-center min-w-[120px]">
-                    <div className="text-[9px] uppercase tracking-widest text-[var(--brand-muted)]">Champion</div>
+                    <div className="text-[11px] uppercase tracking-widest text-[var(--brand-muted)]">Champion</div>
                     <div className="font-bold text-[var(--brand-primary)] text-sm">
                       {tournament.champion?.name ??
                         (champMatchups[0] ? resolveTeam(champMatchups[0].id)?.name ?? "?" : "?")}
@@ -296,11 +296,11 @@ function RoundColumn({ round, matchups, resolveTeam, readOnly, side }: RoundColu
     >
       {/* Round header */}
       <div className="text-center mb-2">
-        <div className="text-[11px] font-semibold text-[var(--brand-text)]">
+        <div className="text-[14px] font-semibold text-[var(--brand-text)]">
           {round.shortName ?? round.name}
         </div>
         {round.startDate && (
-          <div className="text-[9px] text-[var(--brand-muted)]">{round.startDate}</div>
+          <div className="text-[11px] text-[var(--brand-muted)]">{round.startDate}</div>
         )}
       </div>
 

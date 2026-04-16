@@ -19,7 +19,6 @@ const ROUND_WIDTH = 168;
 const ROUND_GAP = 24;
 const MATCHUP_HEIGHT = 80; // 2 slots (h-10=40px each) + divider
 const SLOT_H = MATCHUP_HEIGHT + 8;
-const TOTAL_H = 16 * SLOT_H; // constant across all rounds
 const CONNECTOR_COLOR = "#94a3b8"; // slate-400 — visible but not harsh
 
 export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
@@ -74,6 +73,21 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
     const regionalRounds = tournament.rounds.filter((r) => r.roundNumber <= 3);
     const finalRounds = tournament.rounds.filter((r) => r.roundNumber >= 4);
 
+    // Derive total height dynamically so both 64-team (NCAA) and 16-team (NBA) brackets render correctly
+    const totalH = useMemo(() => {
+      const regionalKeys = [
+        ...leftMatchupsByRound.keys(),
+        ...rightMatchupsByRound.keys(),
+      ].filter((k) => k <= 3);
+      if (regionalKeys.length === 0) return 16 * SLOT_H;
+      const firstRound = Math.min(...regionalKeys);
+      const maxMatchups = Math.max(
+        leftMatchupsByRound.get(firstRound)?.length ?? 0,
+        rightMatchupsByRound.get(firstRound)?.length ?? 0
+      );
+      return maxMatchups > 0 ? maxMatchups * Math.pow(2, firstRound) * SLOT_H : 16 * SLOT_H;
+    }, [leftMatchupsByRound, rightMatchupsByRound]);
+
     return (
       <div className="bracket-scroll-container">
       <div
@@ -93,7 +107,7 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
         {/* Main bracket grid */}
         <div className="flex items-start gap-0 min-w-max px-2 py-4">
           {/* LEFT REGION LABELS */}
-          <div className="flex flex-col shrink-0 mr-2" style={{ width: 48, height: TOTAL_H }}>
+          <div className="flex flex-col shrink-0 mr-2" style={{ width: 48, height: totalH }}>
             {tournament.regions.filter(r => r.side === "left").map(region => (
               <div key={region.id} className="flex-1 flex items-center justify-center">
                 <span
@@ -112,7 +126,7 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
             ))}
           </div>
 
-          {/* LEFT SIDE — rounds 0→3 (East + South) */}
+          {/* LEFT SIDE — rounds inward */}
           {regionalRounds.map((round) => {
             const rMatchups = (leftMatchupsByRound.get(round.roundNumber) ?? [])
               .sort((a, b) => a.position - b.position);
@@ -125,44 +139,52 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
                 readOnly={readOnly}
                 side="left"
                 totalRounds={totalRounds}
+                totalH={totalH}
               />
             );
           })}
 
-          {/* CENTER — Final Four + Championship */}
+          {/* CENTER — semi-finals (if any) + championship/finals */}
           <div className="flex flex-col items-center justify-center gap-4 px-4 self-center rounded-xl bg-white/60 border border-[var(--brand-primary)]/20 py-6 mx-2">
             {/* FanDuel branding */}
             <div className="flex flex-col items-center mb-2">
               <FanDuelLogo variant="vertical-blue" height={72} />
             </div>
-            <div className="text-[13px] font-bold text-[var(--brand-muted)] uppercase tracking-widest text-center">
-              Final Four
-            </div>
-            {finalRounds.slice(0, -1).map((round) => {
-              const rMatchups = (matchups.filter(m => m.round === round.roundNumber))
-                .sort((a, b) => a.position - b.position);
-              return (
-                <div key={round.id} className="flex flex-col gap-4 items-center">
-                  {rMatchups.map((m) => (
-                    <MatchupCard
-                      key={m.id}
-                      matchup={m}
-                      resolvedTeamA={resolveTeam(m.sourceMatchupIds[0])}
-                      resolvedTeamB={resolveTeam(m.sourceMatchupIds[1])}
-                      readOnly={readOnly}
-                    />
-                  ))}
-                </div>
-              );
-            })}
 
-            {/* Championship */}
+            {/* Semi-final games shown only when they exist (NCAA Final Four) */}
+            {finalRounds.length > 1 && (
+              <>
+                <div className="text-[13px] font-bold text-[var(--brand-muted)] uppercase tracking-widest text-center">
+                  Final Four
+                </div>
+                {finalRounds.slice(0, -1).map((round) => {
+                  const rMatchups = (matchups.filter(m => m.round === round.roundNumber))
+                    .sort((a, b) => a.position - b.position);
+                  return (
+                    <div key={round.id} className="flex flex-col gap-4 items-center">
+                      {rMatchups.map((m) => (
+                        <MatchupCard
+                          key={m.id}
+                          matchup={m}
+                          resolvedTeamA={resolveTeam(m.sourceMatchupIds[0])}
+                          resolvedTeamB={resolveTeam(m.sourceMatchupIds[1])}
+                          readOnly={readOnly}
+                        />
+                      ))}
+                    </div>
+                  );
+                })}
+              </>
+            )}
+
+            {/* Championship / NBA Finals */}
             {finalRounds.length > 0 && (() => {
               const champRound = finalRounds[finalRounds.length - 1];
               const champMatchups = matchups.filter(m => m.round === champRound.roundNumber);
+              const champLabel = champRound.name ?? "Championship";
               return (
                 <div className="flex flex-col items-center gap-1">
-                  <div className="text-[12px] font-bold text-[var(--brand-muted)] uppercase tracking-widest">Championship</div>
+                  <div className="text-[12px] font-bold text-[var(--brand-muted)] uppercase tracking-widest">{champLabel}</div>
                   {champMatchups.map((m) => (
                     <MatchupCard
                       key={m.id}
@@ -184,7 +206,7 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
             })()}
           </div>
 
-          {/* RIGHT SIDE — rounds 3→0 (West + Midwest, reversed) */}
+          {/* RIGHT SIDE — rounds inward (reversed) */}
           {[...regionalRounds].reverse().map((round) => {
             const rMatchups = (rightMatchupsByRound.get(round.roundNumber) ?? [])
               .sort((a, b) => a.position - b.position);
@@ -197,12 +219,13 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
                 readOnly={readOnly}
                 side="right"
                 totalRounds={totalRounds}
+                totalH={totalH}
               />
             );
           })}
 
           {/* RIGHT REGION LABELS */}
-          <div className="flex flex-col shrink-0 ml-2" style={{ width: 48, height: TOTAL_H }}>
+          <div className="flex flex-col shrink-0 ml-2" style={{ width: 48, height: totalH }}>
             {tournament.regions.filter(r => r.side === "right").map(region => (
               <div key={region.id} className="flex-1 flex items-center justify-center">
                 <span
@@ -267,19 +290,19 @@ interface RoundColumnProps {
   readOnly?: boolean;
   side: "left" | "right";
   totalRounds: number;
+  totalH: number;
 }
 
-function RoundColumn({ round, matchups, resolveTeam, readOnly, side }: RoundColumnProps) {
+function RoundColumn({ round, matchups, resolveTeam, readOnly, side, totalH }: RoundColumnProps) {
   const spacingFactor = Math.pow(2, round.roundNumber);
   const slotH = MATCHUP_HEIGHT + 8;
   const spacing = slotH * spacingFactor;
   const firstOffset = spacing / 2 - MATCHUP_HEIGHT / 2;
-  const totalH = 16 * slotH; // constant for all rounds (2 regions × 8 matchups each)
 
   const regionGroups: { name: string; startIdx: number }[] = [];
 
-  // Connector lines: pair up consecutive matchups (0+1→0, 2+3→1, …)
-  // Skip E8 (round 3) — its output connects to the Final Four section
+  // Connector lines: pair up consecutive matchups; skip the last regional round
+  // (its winners connect to the center Finals section)
   const showConnectors = round.roundNumber < 3 && matchups.length >= 2;
   const connectorPairs = showConnectors
     ? Array.from({ length: Math.floor(matchups.length / 2) }, (_, k) => {

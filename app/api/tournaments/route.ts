@@ -46,7 +46,6 @@ const TOURNAMENTS = [
     season: "2025-26",
     teamCount: 16,
     logoUrl: null,
-    comingSoon: true,
   },
   {
     id: "nhl-playoffs-2026",

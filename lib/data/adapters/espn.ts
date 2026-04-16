@@ -1,5 +1,5 @@
 /**
- * ESPN live bracket adapter — supports both Men's and Women's NCAA tournaments.
+ * ESPN live bracket adapter — supports NCAA (Men's/Women's) and NBA playoffs.
  *
  * Fetches from the ESPN public scoreboard API, normalises results, and merges
  * them onto a static matchup tree so the bracket reflects live scores/winners.
@@ -8,6 +8,7 @@
 import type { Tournament, Matchup, Team } from "@/types/bracket";
 import mensStatic from "@/lib/data/static/ncaa-2026.json";
 import womensStatic from "@/lib/data/static/ncaa-womens-2026.json";
+import nbaStatic from "@/lib/data/static/nba-2026.json";
 
 const ESPN_BASE =
   "https://site.api.espn.com/apis/site/v2/sports/basketball";
@@ -280,7 +281,7 @@ async function buildLiveBracket(cfg: SportConfig, base: unknown): Promise<Tourna
   return tournament;
 }
 
-// ── Public exports ────────────────────────────────────────────────────────────
+// ── Public exports (NCAA) ─────────────────────────────────────────────────────
 
 export function getLiveBracket(): Promise<Tournament> {
   return buildLiveBracket(MENS, mensStatic);
@@ -288,4 +289,248 @@ export function getLiveBracket(): Promise<Tournament> {
 
 export function getLiveWomensBracket(): Promise<Tournament> {
   return buildLiveBracket(WOMENS, womensStatic);
+}
+
+// ── NBA Playoffs adapter ──────────────────────────────────────────────────────
+
+function generateDateRange(startIso: string, endIso: string): string[] {
+  const dates: string[] = [];
+  const cur = new Date(startIso);
+  const end = new Date(endIso);
+  while (cur <= end) {
+    dates.push(cur.toISOString().slice(0, 10).replace(/-/g, ""));
+    cur.setDate(cur.getDate() + 1);
+  }
+  return dates;
+}
+
+const NBA_PLAYOFF_DATES = generateDateRange("2026-04-19", "2026-06-22");
+
+interface NbaGame {
+  round: number;
+  conference: string | null;
+  homeSeed: number;
+  awaySeed: number;
+  homeTeam: Team;
+  awayTeam: Team;
+  homeWon: boolean | null;
+  inProgress: boolean;
+}
+
+function parseNbaRound(headline: string): number {
+  if (/first\s+round/i.test(headline)) return 1;
+  if (/semi.?final/i.test(headline)) return 2;
+  if (/conference\s+final/i.test(headline)) return 3;
+  if (/nba\s+final/i.test(headline)) return 4;
+  return -99;
+}
+
+function parseNbaConference(headline: string): string | null {
+  if (/eastern/i.test(headline)) return "east";
+  if (/western/i.test(headline)) return "west";
+  return null;
+}
+
+async function fetchNbaPlayoffGames(): Promise<NbaGame[]> {
+  const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  const dates = NBA_PLAYOFF_DATES.filter((d) => d <= today);
+  if (dates.length === 0) return [];
+
+  const url = `${ESPN_BASE}/nba/scoreboard`;
+  const allGames: NbaGame[] = [];
+
+  await Promise.all(
+    dates.map(async (date) => {
+      try {
+        const res = await fetch(`${url}?seasontype=3&limit=100&dates=${date}`, {
+          next: { revalidate: 60 },
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+
+        for (const event of data.events ?? []) {
+          const comp = event.competitions?.[0];
+          if (!comp || comp.competitors?.length !== 2) continue;
+
+          const headline: string =
+            comp.notes?.[0]?.headline ?? event.notes?.[0]?.headline ?? "";
+
+          if (/play.?in/i.test(headline)) continue;
+
+          const round = parseNbaRound(headline);
+          if (round === -99) continue;
+
+          const conference = parseNbaConference(headline);
+          const state: string = event.status?.type?.state ?? "pre";
+          const completed: boolean = event.status?.type?.completed ?? false;
+
+          const [c1, c2] = comp.competitors as any[];
+          const home = c1.homeAway === "home" ? c1 : c2;
+          const away = c1.homeAway === "home" ? c2 : c1;
+
+          const toTeam = (c: any): Team => ({
+            id: c.team?.abbreviation?.toLowerCase() ?? "",
+            name: c.team?.displayName ?? "",
+            shortName: c.team?.shortDisplayName ?? c.team?.abbreviation ?? "",
+            abbreviation: c.team?.abbreviation ?? "",
+            seed: c.curatedRank?.current ?? 0,
+            logoUrl: c.team?.logo ?? undefined,
+            region: conference ?? undefined,
+          });
+
+          allGames.push({
+            round,
+            conference,
+            homeSeed: home.curatedRank?.current ?? 0,
+            awaySeed: away.curatedRank?.current ?? 0,
+            homeTeam: toTeam(home),
+            awayTeam: toTeam(away),
+            homeWon: completed ? (home.winner ?? false) : null,
+            inProgress: state === "in",
+          });
+        }
+      } catch {
+        // Silently skip failed date fetches
+      }
+    })
+  );
+
+  return allGames;
+}
+
+const NBA_R1_POSITION: Record<string, number> = {
+  "1v8": 0, "8v1": 0,
+  "4v5": 1, "5v4": 1,
+  "3v6": 2, "6v3": 2,
+  "2v7": 3, "7v2": 3,
+};
+
+async function buildNbaLiveBracket(base: unknown): Promise<Tournament> {
+  const tournament: Tournament = JSON.parse(JSON.stringify(base)) as Tournament;
+  const matchups: Matchup[] = (tournament as any).matchups ?? [];
+
+  let games: NbaGame[];
+  try {
+    games = await fetchNbaPlayoffGames();
+  } catch {
+    return tournament;
+  }
+  if (games.length === 0) return tournament;
+
+  interface SeriesData {
+    lowerSeedTeam: Team;
+    higherSeedTeam: Team;
+    lowerWins: number;
+    higherWins: number;
+    hasInProgress: boolean;
+  }
+
+  const seriesMap = new Map<string, SeriesData>();
+
+  for (const g of games) {
+    if (g.homeSeed === 0 || g.awaySeed === 0) continue;
+    const lo = Math.min(g.homeSeed, g.awaySeed);
+    const hi = Math.max(g.homeSeed, g.awaySeed);
+    const conf = g.conference ?? "finals";
+    const key = `${conf}_r${g.round}_${lo}v${hi}`;
+
+    const loTeam = g.homeSeed <= g.awaySeed ? g.homeTeam : g.awayTeam;
+    const hiTeam = g.homeSeed <= g.awaySeed ? g.awayTeam : g.homeTeam;
+
+    if (!seriesMap.has(key)) {
+      seriesMap.set(key, {
+        lowerSeedTeam: { ...loTeam },
+        higherSeedTeam: { ...hiTeam },
+        lowerWins: 0,
+        higherWins: 0,
+        hasInProgress: false,
+      });
+    }
+
+    const s = seriesMap.get(key)!;
+    if (loTeam.logoUrl) s.lowerSeedTeam.logoUrl = loTeam.logoUrl;
+    if (hiTeam.logoUrl) s.higherSeedTeam.logoUrl = hiTeam.logoUrl;
+
+    if (g.homeWon !== null) {
+      const winnerSeed = g.homeWon ? g.homeSeed : g.awaySeed;
+      if (winnerSeed === lo) s.lowerWins++;
+      else s.higherWins++;
+    } else if (g.inProgress) {
+      s.hasInProgress = true;
+    }
+  }
+
+  const winnerMap = new Map<string, Team>();
+
+  // Round 1: assign teams by seed-pair → position mapping
+  for (const conf of ["east", "west"] as const) {
+    for (const [key, s] of seriesMap.entries()) {
+      if (!key.startsWith(`${conf}_r1_`)) continue;
+      const seedPart = key.split(`_r1_`)[1];
+      const pos = NBA_R1_POSITION[seedPart];
+      if (pos === undefined) continue;
+
+      const m = matchups.find((x) => x.round === 1 && x.region === conf && x.position === pos);
+      if (!m) continue;
+
+      m.teamA = s.lowerSeedTeam;
+      m.teamB = s.higherSeedTeam;
+      m.scoreA = s.lowerWins;
+      m.scoreB = s.higherWins;
+
+      if (s.lowerWins >= 4) {
+        m.winner = s.lowerSeedTeam;
+        m.status = "final";
+        winnerMap.set(m.id, s.lowerSeedTeam);
+      } else if (s.higherWins >= 4) {
+        m.winner = s.higherSeedTeam;
+        m.status = "final";
+        winnerMap.set(m.id, s.higherSeedTeam);
+      } else if (s.hasInProgress) {
+        m.status = "in_progress";
+      }
+    }
+  }
+
+  // Rounds 2–4: resolve teams from winnerMap then look up series
+  for (const round of [2, 3, 4]) {
+    for (const m of matchups.filter((x) => x.round === round)) {
+      const tA = m.sourceMatchupIds[0] ? (winnerMap.get(m.sourceMatchupIds[0]) ?? null) : null;
+      const tB = m.sourceMatchupIds[1] ? (winnerMap.get(m.sourceMatchupIds[1]) ?? null) : null;
+      if (!tA || !tB) continue;
+
+      m.teamA = tA;
+      m.teamB = tB;
+
+      const conf = m.region ?? "finals";
+      const lo = Math.min(tA.seed ?? 0, tB.seed ?? 0);
+      const hi = Math.max(tA.seed ?? 0, tB.seed ?? 0);
+      const key = `${conf}_r${round}_${lo}v${hi}`;
+      const s = seriesMap.get(key);
+      if (!s) continue;
+
+      const aIsLo = (tA.seed ?? 0) === s.lowerSeedTeam.seed;
+      m.scoreA = aIsLo ? s.lowerWins : s.higherWins;
+      m.scoreB = aIsLo ? s.higherWins : s.lowerWins;
+
+      if (s.lowerWins >= 4 || s.higherWins >= 4) {
+        const winner = s.lowerWins >= 4 ? s.lowerSeedTeam : s.higherSeedTeam;
+        m.winner = winner;
+        m.status = "final";
+        winnerMap.set(m.id, winner);
+      } else if (s.hasInProgress) {
+        m.status = "in_progress";
+      }
+    }
+  }
+
+  const finals = matchups.find((m) => m.round === 4);
+  if (finals?.winner) (tournament as any).champion = finals.winner;
+
+  (tournament as any).lastUpdated = new Date().toISOString();
+  return tournament;
+}
+
+export function getLiveNbaBracket(): Promise<Tournament> {
+  return buildNbaLiveBracket(nbaStatic);
 }

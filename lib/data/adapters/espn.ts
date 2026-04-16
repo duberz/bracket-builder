@@ -332,8 +332,11 @@ function parseNbaConference(headline: string): string | null {
 }
 
 async function fetchNbaPlayoffGames(): Promise<NbaGame[]> {
-  const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
-  const dates = NBA_PLAYOFF_DATES.filter((d) => d <= today);
+  // Fetch up to 7 days ahead so scheduled (pre-game) matchups populate teams
+  const lookAhead = new Date();
+  lookAhead.setDate(lookAhead.getDate() + 7);
+  const cutoff = lookAhead.toISOString().slice(0, 10).replace(/-/g, "");
+  const dates = NBA_PLAYOFF_DATES.filter((d) => d <= cutoff);
   if (dates.length === 0) return [];
 
   const url = `${ESPN_BASE}/nba/scoreboard`;

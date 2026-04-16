@@ -317,18 +317,56 @@ interface NbaGame {
   inProgress: boolean;
 }
 
+// ESPN uses "East 1st Round" / "West Conf Semis" etc. (not "Eastern Conference First Round")
 function parseNbaRound(headline: string): number {
-  if (/first\s+round/i.test(headline)) return 1;
-  if (/semi.?final/i.test(headline)) return 2;
-  if (/conference\s+final/i.test(headline)) return 3;
+  if (/1st\s+round|first\s+round/i.test(headline)) return 1;
+  if (/semi.?final|conf.+semi/i.test(headline)) return 2;
+  if (/conf.+final/i.test(headline)) return 3;
   if (/nba\s+final/i.test(headline)) return 4;
   return -99;
 }
 
 function parseNbaConference(headline: string): string | null {
-  if (/eastern/i.test(headline)) return "east";
-  if (/western/i.test(headline)) return "west";
+  if (/^east/i.test(headline) || /eastern/i.test(headline)) return "east";
+  if (/^west/i.test(headline) || /western/i.test(headline)) return "west";
   return null;
+}
+
+// Fetch playoff seeds from ESPN standings (seeds not included in scoreboard API)
+async function fetchNbaSeedMap(): Promise<Map<string, { seed: number; conf: "east" | "west" }>> {
+  const map = new Map<string, { seed: number; conf: "east" | "west" }>();
+
+  await Promise.all(
+    ([
+      { group: 5, conf: "east" as const },
+      { group: 6, conf: "west" as const },
+    ] as const).map(async ({ group, conf }) => {
+      try {
+        const url =
+          `https://site.api.espn.com/apis/v2/sports/basketball/nba/standings` +
+          `?season=2026&seasontype=2&group=${group}&sort=wins:desc,gamesBehind:asc&level=3`;
+        const res = await fetch(url, { next: { revalidate: 3600 } });
+        if (!res.ok) return;
+        const data = await res.json();
+        for (const child of data.children ?? []) {
+          for (const entry of child.standings?.entries ?? []) {
+            const seedStat = (entry.stats as any[] | undefined)?.find(
+              (s) => s.name === "playoffSeed"
+            );
+            if (!seedStat) continue;
+            const seed = Number(seedStat.value);
+            if (seed < 1 || seed > 10) continue;
+            const abbr: string = entry.team?.abbreviation ?? "";
+            if (abbr) map.set(abbr, { seed, conf });
+          }
+        }
+      } catch {
+        // ignore standings fetch failure — seeds will be 0 and teams may not render
+      }
+    })
+  );
+
+  return map;
 }
 
 async function fetchNbaPlayoffGames(): Promise<NbaGame[]> {
@@ -373,10 +411,10 @@ async function fetchNbaPlayoffGames(): Promise<NbaGame[]> {
 
           const toTeam = (c: any): Team => ({
             id: c.team?.abbreviation?.toLowerCase() ?? "",
-            name: c.team?.displayName ?? "",
+            name: c.team?.displayName ?? c.team?.shortDisplayName ?? "",
             shortName: c.team?.shortDisplayName ?? c.team?.abbreviation ?? "",
             abbreviation: c.team?.abbreviation ?? "",
-            seed: c.curatedRank?.current ?? 0,
+            seed: 0, // enriched from seed map in buildNbaLiveBracket
             logoUrl: c.team?.logo ?? undefined,
             region: conference ?? undefined,
           });
@@ -384,8 +422,8 @@ async function fetchNbaPlayoffGames(): Promise<NbaGame[]> {
           allGames.push({
             round,
             conference,
-            homeSeed: home.curatedRank?.current ?? 0,
-            awaySeed: away.curatedRank?.current ?? 0,
+            homeSeed: 0, // enriched below
+            awaySeed: 0,
             homeTeam: toTeam(home),
             awayTeam: toTeam(away),
             homeWon: completed ? (home.winner ?? false) : null,
@@ -413,12 +451,27 @@ async function buildNbaLiveBracket(base: unknown): Promise<Tournament> {
   const matchups: Matchup[] = (tournament as any).matchups ?? [];
 
   let games: NbaGame[];
+  let seedMap: Map<string, { seed: number; conf: "east" | "west" }>;
   try {
-    games = await fetchNbaPlayoffGames();
+    [games, seedMap] = await Promise.all([fetchNbaPlayoffGames(), fetchNbaSeedMap()]);
   } catch {
     return tournament;
   }
   if (games.length === 0) return tournament;
+
+  // Enrich games with seeds from standings (scoreboard API doesn't include seeds for NBA)
+  for (const g of games) {
+    const homeSeed = seedMap.get(g.homeTeam.abbreviation)?.seed ?? 0;
+    const awayIsTbd = g.awayTeam.abbreviation.includes("/");
+    // In round 1, away seed = 9 - home seed (NBA bracket: 1v8, 2v7, 3v6, 4v5)
+    const awaySeed = awayIsTbd
+      ? (g.round === 1 ? 9 - homeSeed : 0)
+      : (seedMap.get(g.awayTeam.abbreviation)?.seed ?? 0);
+    g.homeSeed = homeSeed;
+    g.awaySeed = awaySeed;
+    g.homeTeam = { ...g.homeTeam, seed: homeSeed };
+    g.awayTeam = { ...g.awayTeam, seed: awaySeed };
+  }
 
   interface SeriesData {
     lowerSeedTeam: Team;

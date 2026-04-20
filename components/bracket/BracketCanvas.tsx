@@ -325,10 +325,19 @@ function RoundColumn({ round, matchups, resolveTeam, readOnly, side, totalH, fir
   const regionGroups: { name: string; startIdx: number }[] = [];
 
   const showConnectors = round.roundNumber < lastRegionalRound && matchups.length >= 2;
+  const gap = spacing - MATCHUP_HEIGHT;
   const connectorPairs = showConnectors
     ? Array.from({ length: Math.floor(matchups.length / 2) }, (_, k) => {
-        const yA = firstOffset + (2 * k) * spacing + MATCHUP_HEIGHT / 2;
-        const yB = firstOffset + (2 * k + 1) * spacing + MATCHUP_HEIGHT / 2;
+        let yA: number, yB: number;
+        if (gap >= MATCHUP_HEIGHT) {
+          // Spacious: connectors exit from card edges, bracket lives in the gap
+          yA = firstOffset + (2 * k) * spacing + MATCHUP_HEIGHT;
+          yB = firstOffset + (2 * k + 1) * spacing;
+        } else {
+          // Dense (NCAA R0): card-center style
+          yA = firstOffset + (2 * k) * spacing + MATCHUP_HEIGHT / 2;
+          yB = firstOffset + (2 * k + 1) * spacing + MATCHUP_HEIGHT / 2;
+        }
         return { yA, yB, midY: (yA + yB) / 2 };
       })
     : [];

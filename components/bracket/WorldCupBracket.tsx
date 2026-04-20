@@ -19,9 +19,10 @@ export interface WorldCupBracketHandle {
 const ROUND_WIDTH = 140;
 const ROUND_GAP = 20;
 const CONNECTOR_OVERHANG = 0;
+const BRACKET_TOP_PAD = 10;
 const MATCHUP_HEIGHT = 60;
 const SLOT_H = MATCHUP_HEIGHT + 8;
-const TOTAL_H = 8 * SLOT_H; // 8 R32 matchups per side
+const TOTAL_H = 8 * SLOT_H + 2 * BRACKET_TOP_PAD; // fixed canvas + breathing room
 const CONNECTOR_COLOR = "#94a3b8";
 
 export const WorldCupBracket = forwardRef<WorldCupBracketHandle, Props>(
@@ -385,7 +386,7 @@ function KnockoutRoundColumn({
 }: KnockoutRoundColumnProps) {
   const spacingFactor = Math.pow(2, round.roundNumber);
   const spacing = SLOT_H * spacingFactor;
-  const firstOffset = spacing / 2 - MATCHUP_HEIGHT / 2;
+  const firstOffset = spacing / 2 - MATCHUP_HEIGHT / 2 + BRACKET_TOP_PAD;
 
   const showConnectors = round.roundNumber < 2 && matchups.length >= 2;
   const connectorPairs = showConnectors

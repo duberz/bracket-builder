@@ -18,6 +18,7 @@ export interface BracketCanvasHandle {
 const ROUND_WIDTH = 168;
 const ROUND_GAP = 24;
 const CONNECTOR_OVERHANG = 0;
+const BRACKET_TOP_PAD = 10; // extra px above/below first/last card for breathing room
 const MATCHUP_HEIGHT = 80; // 2 slots (h-10=40px each) + divider
 const SLOT_H = MATCHUP_HEIGHT + 8;
 const CONNECTOR_COLOR = "#94a3b8"; // slate-400 — visible but not harsh
@@ -90,7 +91,7 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
         rightMatchupsByRound.get(fr)?.length ?? 0
       );
       return {
-        totalH: 8 * SLOT_H, // fixed canvas height regardless of first-round count
+        totalH: 8 * SLOT_H + 2 * BRACKET_TOP_PAD, // fixed canvas + breathing room
         firstRound: fr,
         lastRegionalRound: lr,
         maxFirstRoundMatchups: maxMatchups > 0 ? maxMatchups : 8,
@@ -319,7 +320,7 @@ function RoundColumn({ round, matchups, resolveTeam, readOnly, side, totalH, fir
   const spacingFactor = Math.pow(2, round.roundNumber - firstRound);
   const slotMultiplier = 8 / maxFirstRoundMatchups;
   const spacing = SLOT_H * spacingFactor * slotMultiplier;
-  const firstOffset = spacing / 2 - MATCHUP_HEIGHT / 2;
+  const firstOffset = spacing / 2 - MATCHUP_HEIGHT / 2 + BRACKET_TOP_PAD;
 
   const regionGroups: { name: string; startIdx: number }[] = [];
 

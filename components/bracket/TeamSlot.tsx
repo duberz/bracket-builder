@@ -35,7 +35,7 @@ export default function TeamSlot({
         team && !readOnly ? "cursor-pointer hover:bg-blue-50 transition-colors" : "cursor-default",
         isPicked ? "font-bold" : "",
         isEliminated ? "opacity-30 line-through" : "",
-        !team ? "opacity-0 pointer-events-none" : "",
+        !team ? "opacity-20 pointer-events-none" : "",
       ].filter(Boolean).join(" ")}
       title={team ? `${team.name}${team.record ? ` (${team.record})` : ""}` : undefined}
     >

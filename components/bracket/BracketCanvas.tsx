@@ -73,19 +73,26 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
     const regionalRounds = tournament.rounds.filter((r) => r.roundNumber <= 3);
     const finalRounds = tournament.rounds.filter((r) => r.roundNumber >= 4);
 
-    // Derive total height dynamically so both 64-team (NCAA) and 16-team (NBA) brackets render correctly
-    const totalH = useMemo(() => {
+    // Derive total height and round offsets dynamically.
+    // firstRound normalizes spacing so brackets starting at round 1 (NBA) render
+    // at the same density as brackets starting at round 0 (NCAA).
+    const { totalH, firstRound, lastRegionalRound } = useMemo(() => {
       const regionalKeys = [
         ...leftMatchupsByRound.keys(),
         ...rightMatchupsByRound.keys(),
       ].filter((k) => k <= 3);
-      if (regionalKeys.length === 0) return 16 * SLOT_H;
+      if (regionalKeys.length === 0) return { totalH: 16 * SLOT_H, firstRound: 0, lastRegionalRound: 3 };
       const firstRound = Math.min(...regionalKeys);
+      const lastRegionalRound = Math.max(...regionalKeys);
       const maxMatchups = Math.max(
         leftMatchupsByRound.get(firstRound)?.length ?? 0,
         rightMatchupsByRound.get(firstRound)?.length ?? 0
       );
-      return maxMatchups > 0 ? maxMatchups * Math.pow(2, firstRound) * SLOT_H : 16 * SLOT_H;
+      return {
+        totalH: maxMatchups > 0 ? maxMatchups * SLOT_H : 16 * SLOT_H,
+        firstRound,
+        lastRegionalRound,
+      };
     }, [leftMatchupsByRound, rightMatchupsByRound]);
 
     return (
@@ -140,6 +147,8 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
                 side="left"
                 totalRounds={totalRounds}
                 totalH={totalH}
+                firstRound={firstRound}
+                lastRegionalRound={lastRegionalRound}
               />
             );
           })}
@@ -220,6 +229,8 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
                 side="right"
                 totalRounds={totalRounds}
                 totalH={totalH}
+                firstRound={firstRound}
+                lastRegionalRound={lastRegionalRound}
               />
             );
           })}
@@ -291,10 +302,12 @@ interface RoundColumnProps {
   side: "left" | "right";
   totalRounds: number;
   totalH: number;
+  firstRound: number;
+  lastRegionalRound: number;
 }
 
-function RoundColumn({ round, matchups, resolveTeam, readOnly, side, totalH }: RoundColumnProps) {
-  const spacingFactor = Math.pow(2, round.roundNumber);
+function RoundColumn({ round, matchups, resolveTeam, readOnly, side, totalH, firstRound, lastRegionalRound }: RoundColumnProps) {
+  const spacingFactor = Math.pow(2, round.roundNumber - firstRound);
   const slotH = MATCHUP_HEIGHT + 8;
   const spacing = slotH * spacingFactor;
   const firstOffset = spacing / 2 - MATCHUP_HEIGHT / 2;
@@ -303,7 +316,7 @@ function RoundColumn({ round, matchups, resolveTeam, readOnly, side, totalH }: R
 
   // Connector lines: pair up consecutive matchups; skip the last regional round
   // (its winners connect to the center Finals section)
-  const showConnectors = round.roundNumber < 3 && matchups.length >= 2;
+  const showConnectors = round.roundNumber < lastRegionalRound && matchups.length >= 2;
   const connectorPairs = showConnectors
     ? Array.from({ length: Math.floor(matchups.length / 2) }, (_, k) => {
         const yA = firstOffset + (2 * k) * spacing + MATCHUP_HEIGHT / 2;

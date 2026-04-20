@@ -17,6 +17,7 @@ export interface BracketCanvasHandle {
 
 const ROUND_WIDTH = 168;
 const ROUND_GAP = 24;
+const CONNECTOR_OVERHANG = 4; // px the connector lines extend into card edges
 const MATCHUP_HEIGHT = 80; // 2 slots (h-10=40px each) + divider
 const SLOT_H = MATCHUP_HEIGHT + 8;
 const CONNECTOR_COLOR = "#94a3b8"; // slate-400 — visible but not harsh
@@ -383,34 +384,36 @@ function RoundColumn({ round, matchups, resolveTeam, readOnly, side, totalH, fir
           );
         })}
 
-        {/* Bracket connector SVG — extends into the gap toward the next round */}
+        {/* Bracket connector SVG — overlaps card edges by CONNECTOR_OVERHANG px so lines visually dock onto the slot divider */}
         {connectorPairs.length > 0 && (
           <svg
             aria-hidden="true"
             className="absolute pointer-events-none"
             style={
               side === "left"
-                ? { top: 0, left: ROUND_WIDTH, width: ROUND_GAP, height: totalH }
-                : { top: 0, left: -ROUND_GAP, width: ROUND_GAP, height: totalH }
+                ? { top: 0, left: ROUND_WIDTH - CONNECTOR_OVERHANG, width: ROUND_GAP + 2 * CONNECTOR_OVERHANG, height: totalH }
+                : { top: 0, left: -(ROUND_GAP + CONNECTOR_OVERHANG), width: ROUND_GAP + 2 * CONNECTOR_OVERHANG, height: totalH }
             }
           >
-            {connectorPairs.map(({ yA, yB, midY }, k) =>
-              side === "left" ? (
+            {connectorPairs.map(({ yA, yB, midY }, k) => {
+              const midX = ROUND_GAP / 2 + CONNECTOR_OVERHANG; // center of the gap in SVG coords
+              const farX = ROUND_GAP + 2 * CONNECTOR_OVERHANG; // far edge (into destination card)
+              return side === "left" ? (
                 <g key={k}>
-                  <line x1={0} y1={yA} x2={ROUND_GAP / 2} y2={yA} stroke={CONNECTOR_COLOR} strokeWidth={1} />
-                  <line x1={0} y1={yB} x2={ROUND_GAP / 2} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
-                  <line x1={ROUND_GAP / 2} y1={yA} x2={ROUND_GAP / 2} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
-                  <line x1={ROUND_GAP / 2} y1={midY} x2={ROUND_GAP} y2={midY} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={0} y1={yA} x2={midX} y2={yA} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={0} y1={yB} x2={midX} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={midX} y1={yA} x2={midX} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={midX} y1={midY} x2={farX} y2={midY} stroke={CONNECTOR_COLOR} strokeWidth={1} />
                 </g>
               ) : (
                 <g key={k}>
-                  <line x1={ROUND_GAP} y1={yA} x2={ROUND_GAP / 2} y2={yA} stroke={CONNECTOR_COLOR} strokeWidth={1} />
-                  <line x1={ROUND_GAP} y1={yB} x2={ROUND_GAP / 2} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
-                  <line x1={ROUND_GAP / 2} y1={yA} x2={ROUND_GAP / 2} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
-                  <line x1={ROUND_GAP / 2} y1={midY} x2={0} y2={midY} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={farX} y1={yA} x2={midX} y2={yA} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={farX} y1={yB} x2={midX} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={midX} y1={yA} x2={midX} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={midX} y1={midY} x2={0} y2={midY} stroke={CONNECTOR_COLOR} strokeWidth={1} />
                 </g>
-              )
-            )}
+              );
+            })}
           </svg>
         )}
       </div>

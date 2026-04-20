@@ -18,6 +18,7 @@ export interface WorldCupBracketHandle {
 // ── Layout constants (32-team bracket — 8 matchups per side) ─────────────────
 const ROUND_WIDTH = 140;
 const ROUND_GAP = 20;
+const CONNECTOR_OVERHANG = 4; // px the connector lines extend into card edges
 const MATCHUP_HEIGHT = 60;
 const SLOT_H = MATCHUP_HEIGHT + 8;
 const TOTAL_H = 8 * SLOT_H; // 8 R32 matchups per side
@@ -431,27 +432,29 @@ function KnockoutRoundColumn({
             className="absolute pointer-events-none"
             style={
               side === "left"
-                ? { top: 0, left: ROUND_WIDTH, width: ROUND_GAP, height: TOTAL_H }
-                : { top: 0, left: -ROUND_GAP, width: ROUND_GAP, height: TOTAL_H }
+                ? { top: 0, left: ROUND_WIDTH - CONNECTOR_OVERHANG, width: ROUND_GAP + 2 * CONNECTOR_OVERHANG, height: TOTAL_H }
+                : { top: 0, left: -(ROUND_GAP + CONNECTOR_OVERHANG), width: ROUND_GAP + 2 * CONNECTOR_OVERHANG, height: TOTAL_H }
             }
           >
-            {connectorPairs.map(({ yA, yB, midY }, k) =>
-              side === "left" ? (
+            {connectorPairs.map(({ yA, yB, midY }, k) => {
+              const midX = ROUND_GAP / 2 + CONNECTOR_OVERHANG;
+              const farX = ROUND_GAP + 2 * CONNECTOR_OVERHANG;
+              return side === "left" ? (
                 <g key={k}>
-                  <line x1={0} y1={yA} x2={ROUND_GAP / 2} y2={yA} stroke={CONNECTOR_COLOR} strokeWidth={1} />
-                  <line x1={0} y1={yB} x2={ROUND_GAP / 2} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
-                  <line x1={ROUND_GAP / 2} y1={yA} x2={ROUND_GAP / 2} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
-                  <line x1={ROUND_GAP / 2} y1={midY} x2={ROUND_GAP} y2={midY} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={0} y1={yA} x2={midX} y2={yA} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={0} y1={yB} x2={midX} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={midX} y1={yA} x2={midX} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={midX} y1={midY} x2={farX} y2={midY} stroke={CONNECTOR_COLOR} strokeWidth={1} />
                 </g>
               ) : (
                 <g key={k}>
-                  <line x1={ROUND_GAP} y1={yA} x2={ROUND_GAP / 2} y2={yA} stroke={CONNECTOR_COLOR} strokeWidth={1} />
-                  <line x1={ROUND_GAP} y1={yB} x2={ROUND_GAP / 2} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
-                  <line x1={ROUND_GAP / 2} y1={yA} x2={ROUND_GAP / 2} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
-                  <line x1={ROUND_GAP / 2} y1={midY} x2={0} y2={midY} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={farX} y1={yA} x2={midX} y2={yA} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={farX} y1={yB} x2={midX} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={midX} y1={yA} x2={midX} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={midX} y1={midY} x2={0} y2={midY} stroke={CONNECTOR_COLOR} strokeWidth={1} />
                 </g>
-              )
-            )}
+              );
+            })}
           </svg>
         )}
       </div>

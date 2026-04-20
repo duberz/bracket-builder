@@ -74,14 +74,15 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
     const regionalRounds = tournament.rounds.filter((r) => r.roundNumber <= 3);
     const finalRounds = tournament.rounds.filter((r) => r.roundNumber >= 4);
 
-    // Normalize height + spacing so all brackets use compact 88px slots regardless of starting round.
-    // NBA/NHL start at round 1, NCAA at round 0 — without normalization NBA gets 2× the spacing.
-    const { totalH, firstRound, lastRegionalRound } = useMemo(() => {
+    // Always render with 8-slot total height (704px) so NBA/NHL (4 R1 matchups) get the
+    // same canvas as NCAA (8 R0 matchups). Spacing scales proportionally: fewer matchups
+    // → larger per-matchup spacing → proper visual pair separation.
+    const { totalH, firstRound, lastRegionalRound, maxFirstRoundMatchups } = useMemo(() => {
       const regionalKeys = [
         ...leftMatchupsByRound.keys(),
         ...rightMatchupsByRound.keys(),
       ].filter((k) => k <= 3);
-      if (regionalKeys.length === 0) return { totalH: 8 * SLOT_H, firstRound: 0, lastRegionalRound: 3 };
+      if (regionalKeys.length === 0) return { totalH: 8 * SLOT_H, firstRound: 0, lastRegionalRound: 3, maxFirstRoundMatchups: 8 };
       const fr = Math.min(...regionalKeys);
       const lr = Math.max(...regionalKeys);
       const maxMatchups = Math.max(
@@ -89,9 +90,10 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
         rightMatchupsByRound.get(fr)?.length ?? 0
       );
       return {
-        totalH: maxMatchups > 0 ? maxMatchups * SLOT_H : 8 * SLOT_H,
+        totalH: 8 * SLOT_H, // fixed canvas height regardless of first-round count
         firstRound: fr,
         lastRegionalRound: lr,
+        maxFirstRoundMatchups: maxMatchups > 0 ? maxMatchups : 8,
       };
     }, [leftMatchupsByRound, rightMatchupsByRound]);
 
@@ -150,6 +152,7 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
                 totalH={totalH}
                 firstRound={firstRound}
                 lastRegionalRound={lastRegionalRound}
+                maxFirstRoundMatchups={maxFirstRoundMatchups}
               />
             );
           })}
@@ -232,6 +235,7 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
                 totalH={totalH}
                 firstRound={firstRound}
                 lastRegionalRound={lastRegionalRound}
+                maxFirstRoundMatchups={maxFirstRoundMatchups}
               />
             );
           })}
@@ -305,14 +309,16 @@ interface RoundColumnProps {
   totalH: number;
   firstRound: number;
   lastRegionalRound: number;
+  maxFirstRoundMatchups: number;
 }
 
-function RoundColumn({ round, matchups, resolveTeam, readOnly, side, totalH, firstRound, lastRegionalRound }: RoundColumnProps) {
-  // Normalize round number so the first round always uses spacing factor 1 (compact 88px slots).
-  // This ensures NBA/NHL (starting at round 1) looks identical to NCAA (starting at round 0).
+function RoundColumn({ round, matchups, resolveTeam, readOnly, side, totalH, firstRound, lastRegionalRound, maxFirstRoundMatchups }: RoundColumnProps) {
+  // Scale spacing so brackets with fewer first-round matchups use proportionally larger spacing,
+  // keeping the same 704px canvas height as an 8-matchup bracket (NCAA baseline).
+  // NBA/NHL have 4 R1 matchups → slotMultiplier=2 → spacing=176px (vs NCAA's 88px).
   const spacingFactor = Math.pow(2, round.roundNumber - firstRound);
-  const slotH = MATCHUP_HEIGHT + 8;
-  const spacing = slotH * spacingFactor;
+  const slotMultiplier = 8 / maxFirstRoundMatchups;
+  const spacing = SLOT_H * spacingFactor * slotMultiplier;
   const firstOffset = spacing / 2 - MATCHUP_HEIGHT / 2;
 
   const regionGroups: { name: string; startIdx: number }[] = [];

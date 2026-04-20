@@ -394,9 +394,11 @@ function KnockoutRoundColumn({
     ? Array.from({ length: Math.floor(matchups.length / 2) }, (_, k) => {
         let yA: number, yB: number;
         if (gap >= MATCHUP_HEIGHT) {
-          // Spacious: connectors exit from card edges, bracket lives in the gap
-          yA = firstOffset + 2 * k * spacing + MATCHUP_HEIGHT;
-          yB = firstOffset + (2 * k + 1) * spacing;
+          // Spacious: arms float at 25% / 75% of the gap between cards
+          const cardBottomA = firstOffset + 2 * k * spacing + MATCHUP_HEIGHT;
+          const cardTopB = firstOffset + (2 * k + 1) * spacing;
+          yA = cardBottomA + gap * 0.25;
+          yB = cardTopB - gap * 0.25;
         } else {
           // Dense: card-center style
           yA = firstOffset + 2 * k * spacing + MATCHUP_HEIGHT / 2;

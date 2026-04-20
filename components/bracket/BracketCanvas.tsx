@@ -376,30 +376,24 @@ function RoundColumn({ round, matchups, resolveTeam, readOnly, side, totalH }: R
             className="absolute pointer-events-none"
             style={
               side === "left"
-                ? { top: 0, left: ROUND_WIDTH - 4, width: ROUND_GAP + 4, height: totalH, overflow: "visible" }
-                : { top: 0, left: -ROUND_GAP, width: ROUND_GAP + 4, height: totalH, overflow: "visible" }
+                ? { top: 0, left: ROUND_WIDTH, width: ROUND_GAP, height: totalH }
+                : { top: 0, left: -ROUND_GAP, width: ROUND_GAP, height: totalH }
             }
           >
             {connectorPairs.map(({ yA, yB, midY }, k) =>
               side === "left" ? (
                 <g key={k}>
-                  {/* From inside card right edge → midpoint (4px overlap into card) */}
-                  <line x1={0} y1={yA} x2={ROUND_GAP / 2 + 4} y2={yA} stroke={CONNECTOR_COLOR} strokeWidth={1} />
-                  <line x1={0} y1={yB} x2={ROUND_GAP / 2 + 4} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
-                  {/* Vertical bracket */}
-                  <line x1={ROUND_GAP / 2 + 4} y1={yA} x2={ROUND_GAP / 2 + 4} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
-                  {/* From midpoint → next column left edge (4px overlap) */}
-                  <line x1={ROUND_GAP / 2 + 4} y1={midY} x2={ROUND_GAP + 4} y2={midY} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={0} y1={yA} x2={ROUND_GAP / 2} y2={yA} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={0} y1={yB} x2={ROUND_GAP / 2} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={ROUND_GAP / 2} y1={yA} x2={ROUND_GAP / 2} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={ROUND_GAP / 2} y1={midY} x2={ROUND_GAP} y2={midY} stroke={CONNECTOR_COLOR} strokeWidth={1} />
                 </g>
               ) : (
                 <g key={k}>
-                  {/* From inside card left edge (overlap 4px) → midpoint */}
-                  <line x1={ROUND_GAP + 4} y1={yA} x2={ROUND_GAP / 2} y2={yA} stroke={CONNECTOR_COLOR} strokeWidth={1} />
-                  <line x1={ROUND_GAP + 4} y1={yB} x2={ROUND_GAP / 2} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
-                  {/* Vertical bracket */}
+                  <line x1={ROUND_GAP} y1={yA} x2={ROUND_GAP / 2} y2={yA} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={ROUND_GAP} y1={yB} x2={ROUND_GAP / 2} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
                   <line x1={ROUND_GAP / 2} y1={yA} x2={ROUND_GAP / 2} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
-                  {/* From midpoint → inner column right edge (4px overlap) */}
-                  <line x1={ROUND_GAP / 2} y1={midY} x2={-4} y2={midY} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={ROUND_GAP / 2} y1={midY} x2={0} y2={midY} stroke={CONNECTOR_COLOR} strokeWidth={1} />
                 </g>
               )
             )}

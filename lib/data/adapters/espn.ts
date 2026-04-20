@@ -607,32 +607,34 @@ interface NhlGame {
   inProgress: boolean;
 }
 
+// ESPN NHL headlines: "East 1st Round - Game 1", "West 2nd Round - Game 3", "Stanley Cup Final - Game 2"
 function parseNhlRound(headline: string): number {
-  if (/first\s+round/i.test(headline)) return 1;
-  if (/second\s+round/i.test(headline)) return 2;
+  if (/1st\s+round|first\s+round/i.test(headline)) return 1;
+  if (/2nd\s+round|second\s+round/i.test(headline)) return 2;
   if (/conference\s+final/i.test(headline)) return 3;
   if (/stanley\s+cup\s+final/i.test(headline)) return 4;
   return -99;
 }
 
 function parseNhlConference(headline: string): string | null {
-  if (/eastern/i.test(headline)) return "east";
-  if (/western/i.test(headline)) return "west";
+  if (/^east/i.test(headline) || /eastern/i.test(headline)) return "east";
+  if (/^west/i.test(headline) || /western/i.test(headline)) return "west";
   return null;
 }
 
+// NHL standings: group 7 = Eastern conference, group 8 = Western conference (level=2 for division children)
 async function fetchNhlSeedMap(): Promise<Map<string, { seed: number; conf: "east" | "west" }>> {
   const map = new Map<string, { seed: number; conf: "east" | "west" }>();
 
   await Promise.all(
     ([
-      { group: 5, conf: "east" as const },
-      { group: 6, conf: "west" as const },
+      { group: 7, conf: "east" as const },
+      { group: 8, conf: "west" as const },
     ] as const).map(async ({ group, conf }) => {
       try {
         const url =
           `https://site.api.espn.com/apis/v2/sports/hockey/nhl/standings` +
-          `?season=2026&seasontype=2&group=${group}&sort=wins:desc&level=3`;
+          `?season=2026&seasontype=2&group=${group}&level=2`;
         const res = await fetch(url, { next: { revalidate: 3600 } });
         if (!res.ok) return;
         const data = await res.json();
@@ -722,12 +724,6 @@ async function fetchNhlPlayoffGames(): Promise<NhlGame[]> {
   return allGames;
 }
 
-const NHL_R1_POSITION: Record<string, number> = {
-  "1v8": 0, "8v1": 0,
-  "2v7": 1, "7v2": 1,
-  "3v6": 2, "6v3": 2,
-  "4v5": 3, "5v4": 3,
-};
 
 async function buildNhlLiveBracket(base: unknown): Promise<Tournament> {
   const tournament: Tournament = JSON.parse(JSON.stringify(base)) as Tournament;
@@ -797,16 +793,20 @@ async function buildNhlLiveBracket(base: unknown): Promise<Tournament> {
 
   const winnerMap = new Map<string, Team>();
 
-  // Round 1: assign teams by seed-pair → position mapping
+  // Round 1: NHL uses division-based bracket (not simple 1v8/2v7 seed order).
+  // Sort each conference's R1 series by lower seed → assign bracket positions 0,1,2,3 in order.
   for (const conf of ["east", "west"] as const) {
-    for (const [key, s] of seriesMap.entries()) {
-      if (!key.startsWith(`${conf}_r1_`)) continue;
-      const seedPart = key.split(`_r1_`)[1];
-      const pos = NHL_R1_POSITION[seedPart];
-      if (pos === undefined) continue;
+    const r1Series = [...seriesMap.entries()]
+      .filter(([key]) => key.startsWith(`${conf}_r1_`))
+      .map(([key, s]) => {
+        const lo = Number(key.split(`_r1_`)[1].split("v")[0]);
+        return { lo, s };
+      })
+      .sort((a, b) => a.lo - b.lo);
 
-      const m = matchups.find((x) => x.round === 1 && x.region === conf && x.position === pos);
-      if (!m) continue;
+    r1Series.forEach(({ s }, posIdx) => {
+      const m = matchups.find((x) => x.round === 1 && x.region === conf && x.position === posIdx);
+      if (!m) return;
 
       m.teamA = s.lowerSeedTeam;
       m.teamB = s.higherSeedTeam;
@@ -824,7 +824,7 @@ async function buildNhlLiveBracket(base: unknown): Promise<Tournament> {
       } else if (s.hasInProgress) {
         m.status = "in_progress";
       }
-    }
+    });
   }
 
   // Rounds 2–4: resolve teams from winnerMap then look up series

@@ -17,7 +17,7 @@ export interface BracketCanvasHandle {
 
 const ROUND_WIDTH = 168;
 const ROUND_GAP = 24;
-const CONNECTOR_OVERHANG = 4; // px the connector lines extend into card edges
+const CONNECTOR_OVERHANG = 0;
 const MATCHUP_HEIGHT = 80; // 2 slots (h-10=40px each) + divider
 const SLOT_H = MATCHUP_HEIGHT + 8;
 const CONNECTOR_COLOR = "#94a3b8"; // slate-400 — visible but not harsh

@@ -18,7 +18,7 @@ export interface WorldCupBracketHandle {
 // ── Layout constants (32-team bracket — 8 matchups per side) ─────────────────
 const ROUND_WIDTH = 140;
 const ROUND_GAP = 20;
-const CONNECTOR_OVERHANG = 4; // px the connector lines extend into card edges
+const CONNECTOR_OVERHANG = 0;
 const MATCHUP_HEIGHT = 60;
 const SLOT_H = MATCHUP_HEIGHT + 8;
 const TOTAL_H = 8 * SLOT_H; // 8 R32 matchups per side

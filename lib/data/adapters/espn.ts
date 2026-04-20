@@ -9,6 +9,7 @@ import type { Tournament, Matchup, Team } from "@/types/bracket";
 import mensStatic from "@/lib/data/static/ncaa-2026.json";
 import womensStatic from "@/lib/data/static/ncaa-womens-2026.json";
 import nbaStatic from "@/lib/data/static/nba-2026.json";
+import nhlStatic from "@/lib/data/static/nhl-2026.json";
 
 const ESPN_BASE =
   "https://site.api.espn.com/apis/site/v2/sports/basketball";
@@ -589,4 +590,282 @@ async function buildNbaLiveBracket(base: unknown): Promise<Tournament> {
 
 export function getLiveNbaBracket(): Promise<Tournament> {
   return buildNbaLiveBracket(nbaStatic);
+}
+
+// ── NHL Playoffs adapter ──────────────────────────────────────────────────────
+
+const ESPN_HOCKEY_BASE = "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl";
+
+const NHL_PLAYOFF_DATES = generateDateRange("2026-04-19", "2026-07-05");
+
+interface NhlGame {
+  round: number;
+  conference: string | null;
+  homeTeam: Team;
+  awayTeam: Team;
+  homeWon: boolean | null;
+  inProgress: boolean;
+}
+
+function parseNhlRound(headline: string): number {
+  if (/first\s+round/i.test(headline)) return 1;
+  if (/second\s+round/i.test(headline)) return 2;
+  if (/conference\s+final/i.test(headline)) return 3;
+  if (/stanley\s+cup\s+final/i.test(headline)) return 4;
+  return -99;
+}
+
+function parseNhlConference(headline: string): string | null {
+  if (/eastern/i.test(headline)) return "east";
+  if (/western/i.test(headline)) return "west";
+  return null;
+}
+
+async function fetchNhlSeedMap(): Promise<Map<string, { seed: number; conf: "east" | "west" }>> {
+  const map = new Map<string, { seed: number; conf: "east" | "west" }>();
+
+  await Promise.all(
+    ([
+      { group: 5, conf: "east" as const },
+      { group: 6, conf: "west" as const },
+    ] as const).map(async ({ group, conf }) => {
+      try {
+        const url =
+          `https://site.api.espn.com/apis/v2/sports/hockey/nhl/standings` +
+          `?season=2026&seasontype=2&group=${group}&sort=wins:desc&level=3`;
+        const res = await fetch(url, { next: { revalidate: 3600 } });
+        if (!res.ok) return;
+        const data = await res.json();
+        for (const child of data.children ?? []) {
+          for (const entry of child.standings?.entries ?? []) {
+            const seedStat = (entry.stats as any[] | undefined)?.find(
+              (s) => s.name === "playoffSeed"
+            );
+            if (!seedStat) continue;
+            const seed = Number(seedStat.value);
+            if (seed < 1 || seed > 8) continue;
+            const abbr: string = entry.team?.abbreviation ?? "";
+            if (abbr) map.set(abbr, { seed, conf });
+          }
+        }
+      } catch {
+        // ignore standings fetch failure
+      }
+    })
+  );
+
+  return map;
+}
+
+async function fetchNhlPlayoffGames(): Promise<NhlGame[]> {
+  const lookAhead = new Date();
+  lookAhead.setDate(lookAhead.getDate() + 7);
+  const cutoff = lookAhead.toISOString().slice(0, 10).replace(/-/g, "");
+  const dates = NHL_PLAYOFF_DATES.filter((d) => d <= cutoff);
+  if (dates.length === 0) return [];
+
+  const url = `${ESPN_HOCKEY_BASE}/scoreboard`;
+  const allGames: NhlGame[] = [];
+
+  await Promise.all(
+    dates.map(async (date) => {
+      try {
+        const res = await fetch(`${url}?seasontype=3&limit=100&dates=${date}`, {
+          next: { revalidate: 60 },
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+
+        for (const event of data.events ?? []) {
+          const comp = event.competitions?.[0];
+          if (!comp || comp.competitors?.length !== 2) continue;
+
+          const headline: string =
+            comp.notes?.[0]?.headline ?? event.notes?.[0]?.headline ?? "";
+
+          const round = parseNhlRound(headline);
+          if (round === -99) continue;
+
+          const conference = parseNhlConference(headline);
+          const state: string = event.status?.type?.state ?? "pre";
+          const completed: boolean = event.status?.type?.completed ?? false;
+
+          const [c1, c2] = comp.competitors as any[];
+          const home = c1.homeAway === "home" ? c1 : c2;
+          const away = c1.homeAway === "home" ? c2 : c1;
+
+          const toTeam = (c: any): Team => ({
+            id: c.team?.abbreviation?.toLowerCase() ?? "",
+            name: c.team?.displayName ?? c.team?.shortDisplayName ?? "",
+            shortName: c.team?.shortDisplayName ?? c.team?.abbreviation ?? "",
+            abbreviation: c.team?.abbreviation ?? "",
+            seed: 0,
+            logoUrl: c.team?.logo ?? undefined,
+            region: conference ?? undefined,
+          });
+
+          allGames.push({
+            round,
+            conference,
+            homeTeam: toTeam(home),
+            awayTeam: toTeam(away),
+            homeWon: completed ? (home.winner ?? false) : null,
+            inProgress: state === "in",
+          });
+        }
+      } catch {
+        // Silently skip failed date fetches
+      }
+    })
+  );
+
+  return allGames;
+}
+
+const NHL_R1_POSITION: Record<string, number> = {
+  "1v8": 0, "8v1": 0,
+  "2v7": 1, "7v2": 1,
+  "3v6": 2, "6v3": 2,
+  "4v5": 3, "5v4": 3,
+};
+
+async function buildNhlLiveBracket(base: unknown): Promise<Tournament> {
+  const tournament: Tournament = JSON.parse(JSON.stringify(base)) as Tournament;
+  const matchups: Matchup[] = (tournament as any).matchups ?? [];
+
+  let games: NhlGame[];
+  let seedMap: Map<string, { seed: number; conf: "east" | "west" }>;
+  try {
+    [games, seedMap] = await Promise.all([fetchNhlPlayoffGames(), fetchNhlSeedMap()]);
+  } catch {
+    return tournament;
+  }
+  if (games.length === 0) return tournament;
+
+  // Enrich games with seeds
+  for (const g of games) {
+    const homeSeed = seedMap.get(g.homeTeam.abbreviation)?.seed ?? 0;
+    const awaySeed = seedMap.get(g.awayTeam.abbreviation)?.seed ?? 0;
+    g.homeTeam = { ...g.homeTeam, seed: homeSeed };
+    g.awayTeam = { ...g.awayTeam, seed: awaySeed };
+  }
+
+  interface SeriesData {
+    lowerSeedTeam: Team;
+    higherSeedTeam: Team;
+    lowerWins: number;
+    higherWins: number;
+    hasInProgress: boolean;
+  }
+
+  const seriesMap = new Map<string, SeriesData>();
+
+  for (const g of games) {
+    const lo = Math.min(g.homeTeam.seed ?? 0, g.awayTeam.seed ?? 0);
+    const hi = Math.max(g.homeTeam.seed ?? 0, g.awayTeam.seed ?? 0);
+    if (lo === 0) continue;
+    const conf = g.conference ?? "finals";
+    const key = `${conf}_r${g.round}_${lo}v${hi}`;
+
+    const loTeam = (g.homeTeam.seed ?? 0) <= (g.awayTeam.seed ?? 0) ? g.homeTeam : g.awayTeam;
+    const hiTeam = (g.homeTeam.seed ?? 0) <= (g.awayTeam.seed ?? 0) ? g.awayTeam : g.homeTeam;
+
+    if (!seriesMap.has(key)) {
+      seriesMap.set(key, {
+        lowerSeedTeam: { ...loTeam },
+        higherSeedTeam: { ...hiTeam },
+        lowerWins: 0,
+        higherWins: 0,
+        hasInProgress: false,
+      });
+    }
+
+    const s = seriesMap.get(key)!;
+    if (loTeam.logoUrl) s.lowerSeedTeam.logoUrl = loTeam.logoUrl;
+    if (hiTeam.logoUrl) s.higherSeedTeam.logoUrl = hiTeam.logoUrl;
+
+    if (g.homeWon !== null) {
+      const homeSeed = g.homeTeam.seed ?? 0;
+      const homeWon = g.homeWon;
+      const winnerIsLower = homeWon ? homeSeed === lo : homeSeed !== lo;
+      if (winnerIsLower) s.lowerWins++;
+      else s.higherWins++;
+    } else if (g.inProgress) {
+      s.hasInProgress = true;
+    }
+  }
+
+  const winnerMap = new Map<string, Team>();
+
+  // Round 1: assign teams by seed-pair → position mapping
+  for (const conf of ["east", "west"] as const) {
+    for (const [key, s] of seriesMap.entries()) {
+      if (!key.startsWith(`${conf}_r1_`)) continue;
+      const seedPart = key.split(`_r1_`)[1];
+      const pos = NHL_R1_POSITION[seedPart];
+      if (pos === undefined) continue;
+
+      const m = matchups.find((x) => x.round === 1 && x.region === conf && x.position === pos);
+      if (!m) continue;
+
+      m.teamA = s.lowerSeedTeam;
+      m.teamB = s.higherSeedTeam;
+      m.scoreA = s.lowerWins;
+      m.scoreB = s.higherWins;
+
+      if (s.lowerWins >= 4) {
+        m.winner = s.lowerSeedTeam;
+        m.status = "final";
+        winnerMap.set(m.id, s.lowerSeedTeam);
+      } else if (s.higherWins >= 4) {
+        m.winner = s.higherSeedTeam;
+        m.status = "final";
+        winnerMap.set(m.id, s.higherSeedTeam);
+      } else if (s.hasInProgress) {
+        m.status = "in_progress";
+      }
+    }
+  }
+
+  // Rounds 2–4: resolve teams from winnerMap then look up series
+  for (const round of [2, 3, 4]) {
+    for (const m of matchups.filter((x) => x.round === round)) {
+      const tA = m.sourceMatchupIds[0] ? (winnerMap.get(m.sourceMatchupIds[0]) ?? null) : null;
+      const tB = m.sourceMatchupIds[1] ? (winnerMap.get(m.sourceMatchupIds[1]) ?? null) : null;
+      if (!tA || !tB) continue;
+
+      m.teamA = tA;
+      m.teamB = tB;
+
+      const conf = m.region ?? "finals";
+      const lo = Math.min(tA.seed ?? 0, tB.seed ?? 0);
+      const hi = Math.max(tA.seed ?? 0, tB.seed ?? 0);
+      const key = `${conf}_r${round}_${lo}v${hi}`;
+      const s = seriesMap.get(key);
+      if (!s) continue;
+
+      const aIsLo = (tA.seed ?? 0) === s.lowerSeedTeam.seed;
+      m.scoreA = aIsLo ? s.lowerWins : s.higherWins;
+      m.scoreB = aIsLo ? s.higherWins : s.lowerWins;
+
+      if (s.lowerWins >= 4 || s.higherWins >= 4) {
+        const winner = s.lowerWins >= 4 ? s.lowerSeedTeam : s.higherSeedTeam;
+        m.winner = winner;
+        m.status = "final";
+        winnerMap.set(m.id, winner);
+      } else if (s.hasInProgress) {
+        m.status = "in_progress";
+      }
+    }
+  }
+
+  const finals = matchups.find((m) => m.round === 4);
+  if (finals?.winner) (tournament as any).champion = finals.winner;
+
+  (tournament as any).lastUpdated = new Date().toISOString();
+  return tournament;
+}
+
+export function getLiveNhlBracket(): Promise<Tournament> {
+  return buildNhlLiveBracket(nhlStatic);
 }

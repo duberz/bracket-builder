@@ -73,27 +73,21 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
     const regionalRounds = tournament.rounds.filter((r) => r.roundNumber <= 3);
     const finalRounds = tournament.rounds.filter((r) => r.roundNumber >= 4);
 
-    // Derive total height and round offsets dynamically.
-    // firstRound normalizes spacing so brackets starting at round 1 (NBA) render
-    // at the same density as brackets starting at round 0 (NCAA).
-    const { totalH, firstRound, lastRegionalRound } = useMemo(() => {
+    // Derive total height dynamically so both 64-team (NCAA) and 16-team (NBA) brackets render correctly
+    const totalH = useMemo(() => {
       const regionalKeys = [
         ...leftMatchupsByRound.keys(),
         ...rightMatchupsByRound.keys(),
       ].filter((k) => k <= 3);
-      if (regionalKeys.length === 0) return { totalH: 16 * SLOT_H, firstRound: 0, lastRegionalRound: 3 };
+      if (regionalKeys.length === 0) return 16 * SLOT_H;
       const firstRound = Math.min(...regionalKeys);
-      const lastRegionalRound = Math.max(...regionalKeys);
       const maxMatchups = Math.max(
         leftMatchupsByRound.get(firstRound)?.length ?? 0,
         rightMatchupsByRound.get(firstRound)?.length ?? 0
       );
-      return {
-        totalH: maxMatchups > 0 ? maxMatchups * SLOT_H : 16 * SLOT_H,
-        firstRound,
-        lastRegionalRound,
-      };
+      return maxMatchups > 0 ? maxMatchups * Math.pow(2, firstRound) * SLOT_H : 16 * SLOT_H;
     }, [leftMatchupsByRound, rightMatchupsByRound]);
+
 
     return (
       <div className="bracket-scroll-container">
@@ -147,8 +141,6 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
                 side="left"
                 totalRounds={totalRounds}
                 totalH={totalH}
-                firstRound={firstRound}
-                lastRegionalRound={lastRegionalRound}
               />
             );
           })}
@@ -229,8 +221,6 @@ export const BracketCanvas = forwardRef<BracketCanvasHandle, Props>(
                 side="right"
                 totalRounds={totalRounds}
                 totalH={totalH}
-                firstRound={firstRound}
-                lastRegionalRound={lastRegionalRound}
               />
             );
           })}
@@ -302,21 +292,17 @@ interface RoundColumnProps {
   side: "left" | "right";
   totalRounds: number;
   totalH: number;
-  firstRound: number;
-  lastRegionalRound: number;
 }
 
-function RoundColumn({ round, matchups, resolveTeam, readOnly, side, totalH, firstRound, lastRegionalRound }: RoundColumnProps) {
-  const spacingFactor = Math.pow(2, round.roundNumber - firstRound);
+function RoundColumn({ round, matchups, resolveTeam, readOnly, side, totalH }: RoundColumnProps) {
+  const spacingFactor = Math.pow(2, round.roundNumber);
   const slotH = MATCHUP_HEIGHT + 8;
   const spacing = slotH * spacingFactor;
   const firstOffset = spacing / 2 - MATCHUP_HEIGHT / 2;
 
   const regionGroups: { name: string; startIdx: number }[] = [];
 
-  // Connector lines: pair up consecutive matchups; skip the last regional round
-  // (its winners connect to the center Finals section)
-  const showConnectors = round.roundNumber < lastRegionalRound && matchups.length >= 2;
+  const showConnectors = round.roundNumber < 3 && matchups.length >= 2;
   const connectorPairs = showConnectors
     ? Array.from({ length: Math.floor(matchups.length / 2) }, (_, k) => {
         const yA = firstOffset + (2 * k) * spacing + MATCHUP_HEIGHT / 2;
@@ -390,30 +376,30 @@ function RoundColumn({ round, matchups, resolveTeam, readOnly, side, totalH, fir
             className="absolute pointer-events-none"
             style={
               side === "left"
-                ? { top: 0, left: ROUND_WIDTH, width: ROUND_GAP, height: totalH }
-                : { top: 0, left: -ROUND_GAP, width: ROUND_GAP, height: totalH }
+                ? { top: 0, left: ROUND_WIDTH - 4, width: ROUND_GAP + 4, height: totalH, overflow: "visible" }
+                : { top: 0, left: -ROUND_GAP, width: ROUND_GAP + 4, height: totalH, overflow: "visible" }
             }
           >
             {connectorPairs.map(({ yA, yB, midY }, k) =>
               side === "left" ? (
                 <g key={k}>
-                  {/* From matchup right edge → midpoint */}
-                  <line x1={0} y1={yA} x2={ROUND_GAP / 2} y2={yA} stroke={CONNECTOR_COLOR} strokeWidth={1} />
-                  <line x1={0} y1={yB} x2={ROUND_GAP / 2} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  {/* From inside card right edge → midpoint (4px overlap into card) */}
+                  <line x1={0} y1={yA} x2={ROUND_GAP / 2 + 4} y2={yA} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={0} y1={yB} x2={ROUND_GAP / 2 + 4} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
                   {/* Vertical bracket */}
-                  <line x1={ROUND_GAP / 2} y1={yA} x2={ROUND_GAP / 2} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
-                  {/* From midpoint → next column left edge */}
-                  <line x1={ROUND_GAP / 2} y1={midY} x2={ROUND_GAP} y2={midY} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={ROUND_GAP / 2 + 4} y1={yA} x2={ROUND_GAP / 2 + 4} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  {/* From midpoint → next column left edge (4px overlap) */}
+                  <line x1={ROUND_GAP / 2 + 4} y1={midY} x2={ROUND_GAP + 4} y2={midY} stroke={CONNECTOR_COLOR} strokeWidth={1} />
                 </g>
               ) : (
                 <g key={k}>
-                  {/* From matchup left edge (at x=ROUND_GAP) → midpoint */}
-                  <line x1={ROUND_GAP} y1={yA} x2={ROUND_GAP / 2} y2={yA} stroke={CONNECTOR_COLOR} strokeWidth={1} />
-                  <line x1={ROUND_GAP} y1={yB} x2={ROUND_GAP / 2} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  {/* From inside card left edge (overlap 4px) → midpoint */}
+                  <line x1={ROUND_GAP + 4} y1={yA} x2={ROUND_GAP / 2} y2={yA} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={ROUND_GAP + 4} y1={yB} x2={ROUND_GAP / 2} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
                   {/* Vertical bracket */}
                   <line x1={ROUND_GAP / 2} y1={yA} x2={ROUND_GAP / 2} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
-                  {/* From midpoint → inner column right edge (x=0) */}
-                  <line x1={ROUND_GAP / 2} y1={midY} x2={0} y2={midY} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  {/* From midpoint → inner column right edge (4px overlap) */}
+                  <line x1={ROUND_GAP / 2} y1={midY} x2={-4} y2={midY} stroke={CONNECTOR_COLOR} strokeWidth={1} />
                 </g>
               )
             )}

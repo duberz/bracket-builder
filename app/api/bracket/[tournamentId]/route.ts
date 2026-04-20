@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getLiveBracket, getLiveWomensBracket, getLiveNbaBracket } from "@/lib/data/adapters/espn";
+import { getLiveBracket, getLiveWomensBracket, getLiveNbaBracket, getLiveNhlBracket } from "@/lib/data/adapters/espn";
 import ncaa2026 from "@/lib/data/static/ncaa-2026.json";
 import ncaaWomens2026 from "@/lib/data/static/ncaa-womens-2026.json";
 import fifa2026 from "@/lib/data/static/fifa-2026.json";
 import nba2026 from "@/lib/data/static/nba-2026.json";
+import nhl2026 from "@/lib/data/static/nhl-2026.json";
 
 export const revalidate = 60;
 
@@ -39,6 +40,14 @@ export async function GET(
       return NextResponse.json(await getLiveNbaBracket(), { headers });
     } catch {
       return NextResponse.json(nba2026, { headers });
+    }
+  }
+
+  if (tournamentId === "nhl-playoffs-2026") {
+    try {
+      return NextResponse.json(await getLiveNhlBracket(), { headers });
+    } catch {
+      return NextResponse.json(nhl2026, { headers });
     }
   }
 

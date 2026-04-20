@@ -1,0 +1,107 @@
+{
+  "id": "nhl-playoffs-2026",
+  "name": "2026 NHL Playoffs",
+  "shortName": "NHL Playoffs 2026",
+  "sport": "nhl_playoffs",
+  "season": "2025-26",
+  "format": "single_elimination",
+  "teamCount": 16,
+  "hasRegions": true,
+  "lastUpdated": "2026-04-20T00:00:00Z",
+  "regions": [
+    { "id": "east", "name": "Eastern", "side": "left", "position": 0 },
+    { "id": "west", "name": "Western", "side": "right", "position": 0 }
+  ],
+  "rounds": [
+    { "id": "nhl-r1", "roundNumber": 1, "name": "First Round", "shortName": "R1", "startDate": "2026-04-19" },
+    { "id": "nhl-r2", "roundNumber": 2, "name": "Second Round", "shortName": "R2", "startDate": "2026-05-07" },
+    { "id": "nhl-r3", "roundNumber": 3, "name": "Conference Finals", "shortName": "CF", "startDate": "2026-05-21" },
+    { "id": "nhl-r4", "roundNumber": 4, "name": "Stanley Cup Final", "shortName": "Final", "startDate": "2026-06-10" }
+  ],
+  "matchups": [
+    {
+      "id": "nhl26-east-r1-m0", "round": 1, "position": 0, "region": "east",
+      "teamA": { "id": "east-1", "name": "East 1", "shortName": "E1", "abbreviation": "E1", "seed": 1, "region": "east" },
+      "teamB": { "id": "east-8", "name": "East 8", "shortName": "E8", "abbreviation": "E8", "seed": 8, "region": "east" },
+      "winner": null, "status": "scheduled", "sourceMatchupIds": [null, null]
+    },
+    {
+      "id": "nhl26-east-r1-m1", "round": 1, "position": 1, "region": "east",
+      "teamA": { "id": "east-2", "name": "East 2", "shortName": "E2", "abbreviation": "E2", "seed": 2, "region": "east" },
+      "teamB": { "id": "east-7", "name": "East 7", "shortName": "E7", "abbreviation": "E7", "seed": 7, "region": "east" },
+      "winner": null, "status": "scheduled", "sourceMatchupIds": [null, null]
+    },
+    {
+      "id": "nhl26-east-r1-m2", "round": 1, "position": 2, "region": "east",
+      "teamA": { "id": "east-3", "name": "East 3", "shortName": "E3", "abbreviation": "E3", "seed": 3, "region": "east" },
+      "teamB": { "id": "east-6", "name": "East 6", "shortName": "E6", "abbreviation": "E6", "seed": 6, "region": "east" },
+      "winner": null, "status": "scheduled", "sourceMatchupIds": [null, null]
+    },
+    {
+      "id": "nhl26-east-r1-m3", "round": 1, "position": 3, "region": "east",
+      "teamA": { "id": "east-4", "name": "East 4", "shortName": "E4", "abbreviation": "E4", "seed": 4, "region": "east" },
+      "teamB": { "id": "east-5", "name": "East 5", "shortName": "E5", "abbreviation": "E5", "seed": 5, "region": "east" },
+      "winner": null, "status": "scheduled", "sourceMatchupIds": [null, null]
+    },
+    {
+      "id": "nhl26-west-r1-m0", "round": 1, "position": 0, "region": "west",
+      "teamA": { "id": "west-1", "name": "West 1", "shortName": "W1", "abbreviation": "W1", "seed": 1, "region": "west" },
+      "teamB": { "id": "west-8", "name": "West 8", "shortName": "W8", "abbreviation": "W8", "seed": 8, "region": "west" },
+      "winner": null, "status": "scheduled", "sourceMatchupIds": [null, null]
+    },
+    {
+      "id": "nhl26-west-r1-m1", "round": 1, "position": 1, "region": "west",
+      "teamA": { "id": "west-2", "name": "West 2", "shortName": "W2", "abbreviation": "W2", "seed": 2, "region": "west" },
+      "teamB": { "id": "west-7", "name": "West 7", "shortName": "W7", "abbreviation": "W7", "seed": 7, "region": "west" },
+      "winner": null, "status": "scheduled", "sourceMatchupIds": [null, null]
+    },
+    {
+      "id": "nhl26-west-r1-m2", "round": 1, "position": 2, "region": "west",
+      "teamA": { "id": "west-3", "name": "West 3", "shortName": "W3", "abbreviation": "W3", "seed": 3, "region": "west" },
+      "teamB": { "id": "west-6", "name": "West 6", "shortName": "W6", "abbreviation": "W6", "seed": 6, "region": "west" },
+      "winner": null, "status": "scheduled", "sourceMatchupIds": [null, null]
+    },
+    {
+      "id": "nhl26-west-r1-m3", "round": 1, "position": 3, "region": "west",
+      "teamA": { "id": "west-4", "name": "West 4", "shortName": "W4", "abbreviation": "W4", "seed": 4, "region": "west" },
+      "teamB": { "id": "west-5", "name": "West 5", "shortName": "W5", "abbreviation": "W5", "seed": 5, "region": "west" },
+      "winner": null, "status": "scheduled", "sourceMatchupIds": [null, null]
+    },
+    {
+      "id": "nhl26-east-r2-m0", "round": 2, "position": 0, "region": "east",
+      "teamA": null, "teamB": null, "winner": null, "status": "scheduled",
+      "sourceMatchupIds": ["nhl26-east-r1-m0", "nhl26-east-r1-m1"]
+    },
+    {
+      "id": "nhl26-east-r2-m1", "round": 2, "position": 1, "region": "east",
+      "teamA": null, "teamB": null, "winner": null, "status": "scheduled",
+      "sourceMatchupIds": ["nhl26-east-r1-m2", "nhl26-east-r1-m3"]
+    },
+    {
+      "id": "nhl26-west-r2-m0", "round": 2, "position": 0, "region": "west",
+      "teamA": null, "teamB": null, "winner": null, "status": "scheduled",
+      "sourceMatchupIds": ["nhl26-west-r1-m0", "nhl26-west-r1-m1"]
+    },
+    {
+      "id": "nhl26-west-r2-m1", "round": 2, "position": 1, "region": "west",
+      "teamA": null, "teamB": null, "winner": null, "status": "scheduled",
+      "sourceMatchupIds": ["nhl26-west-r1-m2", "nhl26-west-r1-m3"]
+    },
+    {
+      "id": "nhl26-east-r3-m0", "round": 3, "position": 0, "region": "east",
+      "teamA": null, "teamB": null, "winner": null, "status": "scheduled",
+      "sourceMatchupIds": ["nhl26-east-r2-m0", "nhl26-east-r2-m1"]
+    },
+    {
+      "id": "nhl26-west-r3-m0", "round": 3, "position": 0, "region": "west",
+      "teamA": null, "teamB": null, "winner": null, "status": "scheduled",
+      "sourceMatchupIds": ["nhl26-west-r2-m0", "nhl26-west-r2-m1"]
+    },
+    {
+      "id": "nhl26-finals-m0", "round": 4, "position": 0, "region": null,
+      "teamA": null, "teamB": null, "winner": null, "status": "scheduled",
+      "sourceMatchupIds": ["nhl26-east-r3-m0", "nhl26-west-r3-m0"]
+    }
+  ],
+  "champion": null
+}

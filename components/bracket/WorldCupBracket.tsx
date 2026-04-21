@@ -447,21 +447,25 @@ function KnockoutRoundColumn({
                 : { top: 0, left: -ROUND_GAP, width: ROUND_GAP, height: TOTAL_H }
             }
           >
-            {connectorPairs.map(({ yA, yB }, k) =>
-              side === "left" ? (
+            {connectorPairs.map(({ yA, yB, midY }, k) => {
+              const midX = ROUND_GAP / 2;
+              const farX = ROUND_GAP;
+              return side === "left" ? (
                 <g key={k}>
-                  <line x1={0} y1={yA} x2={ROUND_GAP} y2={yA} stroke={CONNECTOR_COLOR} strokeWidth={1} />
-                  <line x1={0} y1={yB} x2={ROUND_GAP} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
-                  <line x1={ROUND_GAP} y1={yA} x2={ROUND_GAP} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={0} y1={yA} x2={midX} y2={yA} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={0} y1={yB} x2={midX} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={midX} y1={yA} x2={midX} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={midX} y1={midY} x2={farX} y2={midY} stroke={CONNECTOR_COLOR} strokeWidth={1} />
                 </g>
               ) : (
                 <g key={k}>
-                  <line x1={ROUND_GAP} y1={yA} x2={0} y2={yA} stroke={CONNECTOR_COLOR} strokeWidth={1} />
-                  <line x1={ROUND_GAP} y1={yB} x2={0} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
-                  <line x1={0} y1={yA} x2={0} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={farX} y1={yA} x2={midX} y2={yA} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={farX} y1={yB} x2={midX} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={midX} y1={yA} x2={midX} y2={yB} stroke={CONNECTOR_COLOR} strokeWidth={1} />
+                  <line x1={midX} y1={midY} x2={0} y2={midY} stroke={CONNECTOR_COLOR} strokeWidth={1} />
                 </g>
-              )
-            )}
+              );
+            })}
           </svg>
         )}
       </div>

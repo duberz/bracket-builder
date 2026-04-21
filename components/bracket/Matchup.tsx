@@ -36,9 +36,8 @@ export default function Matchup({
   const isEmpty = !teamA && !teamB;
 
   return (
-    // No border box — just two line-style rows, outer border-b for the bottom line
     <div
-      className={["flex flex-col w-full border-b border-gray-300", isEmpty ? "opacity-20 pointer-events-none" : ""].filter(Boolean).join(" ")}
+      className={["flex flex-col w-full border border-gray-300", isEmpty ? "opacity-20 pointer-events-none" : ""].filter(Boolean).join(" ")}
       style={{ minWidth: 110 }}
     >
       <TeamSlot
